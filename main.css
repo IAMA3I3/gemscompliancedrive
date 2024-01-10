@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+      @apply bg-gray-200 text-gray-800 cursor-default
+    }
+    body {
+      @apply relative overflow-hidden min-h-screen min-w-full dark:bg-gray-600 dark:text-white flex flex-col
+    }
+    .scrollbar::-webkit-scrollbar,
+    html::-webkit-scrollbar {
+      @apply w-2 bg-gray-400
+    }
+    .scrollbar::-webkit-scrollbar {
+      @apply rounded-full
+    }
+    .scrollbar::-webkit-scrollbar-thumb,
+    html::-webkit-scrollbar-thumb {
+      @apply rounded-full bg-gray-800
+    }
+    .card {
+      @apply shadow-lg p-5 md:p-8 rounded-md border border-slate-300 dark:border-slate-500
+    }
+    textarea,
+    input {
+      @apply py-1 px-3 bg-transparent rounded-md border-2 border-gray-400 outline-none focus:border-gray-600 resize-none
+    }
+    textarea {
+      @apply h-40
+    }
+    button {
+      @apply  px-4 py-2 uppercase tracking-wide rounded-md active:scale-95
+    }
+    #email-share,
+    #popup {
+      @apply invisible opacity-0 transition-all
+    }
+    #email-share.show,
+    #popup.show {
+      @apply visible opacity-100 transition-all
+    }
+    .alert {
+      @apply -translate-y-14 transition
+    }
+    .alert.show {
+      @apply translate-y-0
+    }
+    /* #left-bar-item {} */
+    .is-active#left-bar-item{
+      @apply bg-slate-500 text-white
+    }
+}
