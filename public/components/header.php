@@ -22,10 +22,10 @@
                     <i class="fa-solid fa-link"></i>
                     <span>Copy Link</span>
                 </button>
-                <button class="" id="share-btn">
+                <a href="https://mail.google.com/mail/u/0/#inbox?compose=new" target="_blank" class="btn">
                     <i class="fa-regular fa-share-from-square"></i>
                     <span>Share</span>
-                </button>
+                </a>
             </div>
         </div>
     </div>

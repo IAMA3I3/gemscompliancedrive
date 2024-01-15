@@ -86,30 +86,6 @@ copyBtn.onclick = () => {
     showAlert()
 }
 
-// share
-const shareBtn = document.querySelector('#share-btn')
-const emailShare = document.querySelector('#email-share')
-const closeEmailShareBtn = document.querySelector('#close-email-share')
-const emailShareTextarea = document.querySelector('#mail-text')
-
-shareBtn.onclick = () => {
-    emailShare.classList.add('show')
-}
-
-closeEmailShareBtn.onclick = () => {
-    emailShare.classList.remove('show')
-}
-
-emailShareTextarea.innerHTML = `Dear all,\n\nPlease find in the link below ... compliance.\n\n${window.location.href}\n\nRegards.`
-
-// email alert
-const emailAlert = document.querySelector('#email-alert')
-
-if (emailAlert) {
-    emailAlert.classList.add('show')
-    setTimeout(() => emailAlert.classList.remove('show'), 5000)
-}
-
 
 
 
@@ -120,15 +96,35 @@ const leftBarItems = document.querySelectorAll('#left-bar-item')
 let currentMode = "MYDRIVE"
 
 leftBarItems.forEach((item) => {
-    let mode = item.getAttribute('mode')
-
-    item.classList.remove('is-active')
-
     item.onclick = () => {
-        currentMode = item.getAttribute('mode')
+        let mode = item.getAttribute('mode')
+        currentMode = mode
 
+        leftBarItems.forEach((i) => {
+            i.classList.remove('is-active')
+        })
+        
         if (currentMode === mode) {
             item.classList.add('is-active')
         }
     }
 })
+
+
+// right click
+const mainBodyItems = document.querySelectorAll('#main-body-item')
+const menu = document.querySelector('#menu')
+
+mainBodyItems.forEach((item) => {
+    item.oncontextmenu = (e) => {
+        e.preventDefault()
+        
+        menu.style.left = e.clientX + 'px'
+        menu.style.top = e.clientY + 'px'
+        menu.classList.add('show')
+    }
+})
+
+window.onclick = () => {
+    menu.classList.remove('show')
+}

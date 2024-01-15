@@ -26,7 +26,7 @@ function regenerate_session_id_loggedin () {
     //append with user id
     $sessionId = $newSessionId . "_" . $userId;
     //set session id to the above id
-    session_id($sessionId);
+    @session_id($sessionId); //put @ before this to remove warning
     $_SESSION["last_regeneration"] = time();
 }
 

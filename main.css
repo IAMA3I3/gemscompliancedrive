@@ -30,8 +30,9 @@
     textarea {
       @apply h-40
     }
+    .btn,
     button {
-      @apply  px-4 py-2 uppercase tracking-wide rounded-md active:scale-95
+      @apply  px-4 py-2 uppercase tracking-wide rounded-md active:scale-95 cursor-pointer
     }
     #email-share,
     #popup {
@@ -50,5 +51,11 @@
     /* #left-bar-item {} */
     .is-active#left-bar-item{
       @apply bg-slate-500 text-white
+    }
+    #menu {
+      @apply hidden
+    }
+    #menu.show {
+      @apply inline-block
     }
 }
