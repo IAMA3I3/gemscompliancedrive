@@ -149,7 +149,7 @@ include './components/header.php';
 
 
 <!-- menu -->
-<div class=" absolute shadow-lg bg-white rounded-sm *:py-2 *:px-4 hover:*:bg-slate-500 hover:*:text-white cursor-pointer overflow-hidden" id="menu">
+<div class=" absolute shadow-lg bg-white rounded-sm *:py-2 *:px-4 hover:*:bg-slate-500 hover:*:text-white cursor-pointer overflow-hidden *:text-nowrap" id="menu">
     <div class="">
         <i class=" w-8 fa-solid fa-cloud-arrow-down"></i>
         <span>Download</span>

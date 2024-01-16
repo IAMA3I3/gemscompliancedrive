@@ -118,9 +118,26 @@ const menu = document.querySelector('#menu')
 mainBodyItems.forEach((item) => {
     item.oncontextmenu = (e) => {
         e.preventDefault()
-        
-        menu.style.left = e.clientX + 'px'
-        menu.style.top = e.clientY + 'px'
+
+        let xP = e.clientX / window.innerWidth * 100
+        let yP = e.clientY / window.innerHeight * 100
+
+        if (xP < 80) {
+            menu.style.left = xP + '%'
+            menu.style.right = 'auto'
+        } else {
+            menu.style.left = 'auto'
+            menu.style.right = (100 - xP) + '%'
+        }
+
+        if (yP < 60) {
+            menu.style.top = yP + '%'
+            menu.style.bottom = 'auto'
+        } else {
+            menu.style.top = 'auto'
+            menu.style.bottom = (100 - yP) + '%'
+        }
+
         menu.classList.add('show')
     }
 })
