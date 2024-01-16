@@ -52,10 +52,20 @@
     .is-active#left-bar-item{
       @apply bg-slate-500 text-white
     }
+    #prog-container,
+    #sub-screen,
     #menu {
       @apply hidden
     }
+    #prog-container.show,
+    #sub-screen.is-active,
     #menu.show {
       @apply inline-block
+    }
+    #drop-zone {
+      @apply bg-black/10 hover:bg-black/15
+    }
+    #drop-zone.highlight {
+      @apply bg-blue-300
     }
 }

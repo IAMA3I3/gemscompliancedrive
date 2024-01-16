@@ -92,6 +92,7 @@ copyBtn.onclick = () => {
 
 // mode
 const leftBarItems = document.querySelectorAll('#left-bar-item')
+const subScreens = document.querySelectorAll('#sub-screen')
 
 let currentMode = "MYDRIVE"
 
@@ -103,9 +104,21 @@ leftBarItems.forEach((item) => {
         leftBarItems.forEach((i) => {
             i.classList.remove('is-active')
         })
-        
+
+        subScreens.forEach((i) => {
+            i.classList.remove('is-active')
+        })
+
         if (currentMode === mode) {
             item.classList.add('is-active')
+
+            subScreens.forEach((i) => {
+                let screenMode = i.getAttribute('mode')
+
+                if (currentMode === screenMode) {
+                    i.classList.add('is-active')
+                }
+            })
         }
     }
 })
@@ -144,4 +157,110 @@ mainBodyItems.forEach((item) => {
 
 window.onclick = () => {
     menu.classList.remove('show')
+}
+
+
+
+// send file
+// const uploadInput = document.querySelector('#upload-input')
+const progressBar = document.querySelector('#prog-thumb')
+const progressPer = document.querySelector('#prog-per')
+const progressContainer = document.querySelector('#prog-container')
+
+// uploadInput.onchange = (e) => {
+
+//     console.log(e)
+
+//     // upload.send(e.files[0])
+// }
+
+
+
+
+// server request
+let uploading = false
+
+const uploadFiles = (files) => {
+
+    if (uploading) {
+        alert('File upload in progress')
+        return
+    }
+
+    uploading = true
+
+    let myForm = new FormData() // create form object
+
+    for (let i = 0; i < files.length; i++) {
+        myForm.append('file' + i, files[i])
+    }
+
+    progressContainer.classList.add('show')
+    progressBar.style.width = '0%'
+    progressPer.innerHTML = '0%'
+
+    let xhr = new XMLHttpRequest() // create object for making request
+
+    // console.log(xhr)
+
+    xhr.onerror = () => {
+        console.log('Error dey oo, u ar doin d rubbish')
+    }
+
+    // console.log(xhr.upload)
+
+    xhr.upload.onprogress = (e) => {
+
+        let percent = Math.round(e.loaded / e.total * 100)
+        // console.log(percent)
+        progressBar.style.width = percent + '%'
+        progressPer.innerHTML = percent + '%'
+    }
+
+    xhr.onreadystatechange = () => {
+
+        if (xhr.readyState == 4) { // last state that will determine if success or fail
+
+            uploading = false
+
+            if (xhr.status == 200) { // 200: connection is okay
+                alert(xhr.responseText)
+                progressContainer.classList.remove('show')
+                progressBar.style.width = '0%'
+                progressPer.innerHTML = '0%'
+            } else {
+                // console.log(xhr)
+                console.log(xhr.responseText)
+                console.log('Error oo, Gbagam')
+            }
+        }
+    }
+
+    xhr.open('post', 'includes/api.php', true) // open
+    xhr.send(myForm) // send set of data
+}
+
+
+
+
+// drag n drop
+const dropZone = document.querySelector('#drop-zone')
+
+dropZone.ondrop = (e) => {
+    e.preventDefault()
+
+    dropZone.classList.remove('highlight')
+    // console.log(e.dataTransfer.files)
+    uploadFiles(e.dataTransfer.files)
+}
+
+dropZone.ondragover = (e) => {
+    e.preventDefault()
+
+    dropZone.classList.add('highlight')
+}
+
+dropZone.ondragleave = () => {
+
+    dropZone.classList.remove('highlight')
 }

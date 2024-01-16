@@ -1,6 +1,5 @@
 <?php
 
-include_once './includes/session.php';
 include './includes/functions.php';
 include './components/header.php';
 ?>
@@ -20,9 +19,9 @@ include './components/header.php';
         <!-- left bar -->
         <div class=" w-[20%] h-full border-r border-gray-400 pr-1 md:pr-2">
             <!--  -->
-            <div class=" h-full w-full overflow-x-hidden overflow-y-auto scrollbar *:truncate *:my-1">
+            <div class="h-full md:h-[60%] w-full overflow-x-hidden overflow-y-auto scrollbar *:truncate *:my-1 first:*:mb-8">
                 <!--  -->
-                <div class=" cursor-pointer py-2 px-4 rounded-md hover:bg-slate-300 active:bg-slate-500 active:text-white">
+                <div class=" cursor-pointer py-2 px-6 rounded-full bg-blue-500 text-white hover:bg-blue-400 active:scale-95 active:text-white shadow-lg">
                     <i class="fa-solid fa-folder-plus w-8"></i>
                     <span>Create Folder</span>
                 </div>
@@ -49,98 +48,31 @@ include './components/header.php';
                 <!--  -->
             </div>
             <!--  -->
+            <!-- upload -->
+            <div class=" hidden md:inline-block h-[40%]">
+                <label class=" rounded-xl h-full flex justify-center items-center flex-col text-center p-4 border cursor-pointer" id="drop-zone">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl mb-2"></i>
+                    <span>Drag and drop files here or click to upload</span>
+                    <input onchange="uploadFiles(this.files)" type="file" class=" hidden" name="" id="upload-input" multiple>
+                    <!-- progress bar -->
+                    <div class=" w-full mt-2" id="prog-container">
+                        <div class=" w-full h-2 rounded-full bg-gray-400" id="prog">
+                            <div class=" h-full rounded-full bg-blue-500" id="prog-thumb"></div>
+                        </div>
+                        <div class="" id="prog-per">0%</div>
+                    </div>
+                    <!--  -->
+                </label>
+            </div>
+            <!--  -->
+            <!--  -->
         </div>
         <!--  -->
         <!-- main body -->
-        <div class=" h-full w-full p-2 overflow-x-hidden overflow-y-auto scrollbar">
-            <!--  -->
-            <div class=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 *:m-auto">
-                <!--  -->
-                <div class=" w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300" id="main-body-item">
-                    <div class=" py-2 px-4 w-full truncate overflow-hidden z-10">
-                        <i class="fa-regular fa-folder"></i>
-                        <span class="">Folder</span>
-                    </div>
-                    <div class=" h-40 overflow-hidden rounded-md">
-                        <div class=" h-full flex items-center justify-center text-6xl md:text-9xl">
-                            <i class="fa-solid fa-folder"></i>
-                        </div>
-                    </div>
-                </div>
-                <!--  -->
-                <div class=" w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300" id="main-body-item">
-                    <div class=" py-2 px-4 w-full truncate overflow-hidden z-10">
-                        <i class="fa-regular fa-image"></i>
-                        <span class="">image</span>
-                    </div>
-                    <div class=" h-40 overflow-hidden rounded-md">
-                        <img id="img" src="assets/b.png" alt="" class=" cursor-pointer w-full h-full object-cover transition hover:scale-105">
-                    </div>
-                </div>
-                <!--  -->
-                <div class=" w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300" id="main-body-item">
-                    <div class=" py-2 px-4 w-full truncate overflow-hidden">
-                        <i class="fa-regular fa-image"></i>
-                        <span class="">image</span>
-                    </div>
-                    <div class=" h-40 overflow-hidden rounded-md">
-                        <img id="img" src="assets/city.jpg" alt="" class=" cursor-pointer w-full h-full object-cover transition hover:scale-105">
-                    </div>
-                </div>
-                <!--  -->
-                <div class=" w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300" id="main-body-item">
-                    <div class=" py-2 px-4 w-full truncate overflow-hidden">
-                        <i class="fa-regular fa-image"></i>
-                        <span class="">image</span>
-                    </div>
-                    <div class=" h-40 overflow-hidden rounded-md">
-                        <img id="img" src="assets/desk-2.jpg" alt="" class=" cursor-pointer w-full h-full object-cover transition hover:scale-105">
-                    </div>
-                </div>
-                <!--  -->
-                <div class=" w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300" id="main-body-item">
-                    <div class=" py-2 px-4 w-full truncate overflow-hidden">
-                        <i class="fa-regular fa-image"></i>
-                        <span class="">image</span>
-                    </div>
-                    <div class=" h-40 overflow-hidden rounded-md">
-                        <img id="img" src="assets/images.jpeg" alt="" class=" cursor-pointer w-full h-full object-cover transition hover:scale-105">
-                    </div>
-                </div>
-                <!--  -->
-                <div class=" w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300" id="main-body-item">
-                    <div class=" py-2 px-4 w-full truncate overflow-hidden">
-                        <i class="fa-regular fa-image"></i>
-                        <span class="">image</span>
-                    </div>
-                    <div class=" h-40 overflow-hidden rounded-md">
-                        <img id="img" src="assets/b.png" alt="" class=" cursor-pointer w-full h-full object-cover transition hover:scale-105">
-                    </div>
-                </div>
-                <!--  -->
-                <div class=" w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300" id="main-body-item">
-                    <div class=" py-2 px-4 w-full truncate overflow-hidden">
-                        <i class="fa-regular fa-image"></i>
-                        <span class="">image</span>
-                    </div>
-                    <div class=" h-40 overflow-hidden rounded-md">
-                        <img id="img" src="assets/city.jpg" alt="" class=" cursor-pointer w-full h-full object-cover transition hover:scale-105">
-                    </div>
-                </div>
-                <!--  -->
-                <div class=" w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300" id="main-body-item">
-                    <div class=" py-2 px-4 w-full truncate overflow-hidden">
-                        <i class="fa-solid fa-video"></i>
-                        <span class="">Video</span>
-                    </div>
-                    <div class=" h-40 overflow-hidden rounded-md">
-                        <video id="img" src="assets/video.mp4" class=" cursor-pointer w-full h-full object-cover transition hover:scale-105"></video>
-                    </div>
-                </div>
-                <!--  -->
-            </div>
-            <!--  -->
-        </div>
+        <?php
+        include './my_drive.php';
+        include './favourite.php';
+        ?>
         <!--  -->
     </div>
     <!--  -->
