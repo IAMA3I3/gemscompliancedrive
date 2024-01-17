@@ -72,6 +72,8 @@ include './components/header.php';
         <?php
         include './my_drive.php';
         include './favourite.php';
+        include './recent.php';
+        include './trash.php';
         ?>
         <!--  -->
     </div>
@@ -103,8 +105,9 @@ include './components/header.php';
         <span>Share</span>
     </div>
     <div class="">
-        <i class=" w-8 fa-regular fa-star"></i>
-        <span>Add to favourites</span>
+        <i class=" w-8 fa-regular fa-star" id="star-outline"></i>
+        <i class=" w-8 fa-solid fa-star" id="star-fill"></i>
+        <span id="fav-menu">Add to favourites</span>
     </div>
 </div>
 

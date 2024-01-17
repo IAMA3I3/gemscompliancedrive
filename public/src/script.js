@@ -8,7 +8,7 @@ var leftBtn = document.querySelector('#popup #left-btn')
 var rightBtn = document.querySelector('#popup #right-btn')
 
 
-const isImage = ['gif', 'jpg', 'jpeg', 'png']
+const isImage = ['gif', 'jpg', 'jpeg', 'png', 'jfif', 'jif', 'jfi']
 const isVideo = ['mpg', 'mp2', 'mpeg', 'mpe', 'mpv', 'mp4', 'mov']
 let position = 0
 
@@ -88,6 +88,30 @@ copyBtn.onclick = () => {
 
 
 
+// refresh by mode
+const refreshByMode = (mode) => {
+    switch (mode) {
+        case "MYDRIVE":
+            refresh('my-drive', 'MYDRIVE')
+            break;
+
+        case "FAVOURITES":
+            refresh('favourites', 'FAVOURITES')
+            break;
+
+        case "RECENT":
+            refresh('recent', 'RECENT')
+            break;
+
+        case "TRASH":
+            refresh('trash', 'TRASH')
+            break;
+
+        default:
+            break;
+    }
+}
+
 
 
 // mode
@@ -120,44 +144,13 @@ leftBarItems.forEach((item) => {
                 }
             })
         }
+
+        refreshByMode(mode)
     }
 })
 
 
-// right click
-const mainBodyItems = document.querySelectorAll('#main-body-item')
-const menu = document.querySelector('#menu')
 
-mainBodyItems.forEach((item) => {
-    item.oncontextmenu = (e) => {
-        e.preventDefault()
-
-        let xP = e.clientX / window.innerWidth * 100
-        let yP = e.clientY / window.innerHeight * 100
-
-        if (xP < 80) {
-            menu.style.left = xP + '%'
-            menu.style.right = 'auto'
-        } else {
-            menu.style.left = 'auto'
-            menu.style.right = (100 - xP) + '%'
-        }
-
-        if (yP < 60) {
-            menu.style.top = yP + '%'
-            menu.style.bottom = 'auto'
-        } else {
-            menu.style.top = 'auto'
-            menu.style.bottom = (100 - yP) + '%'
-        }
-
-        menu.classList.add('show')
-    }
-})
-
-window.onclick = () => {
-    menu.classList.remove('show')
-}
 
 
 
@@ -177,6 +170,168 @@ const progressContainer = document.querySelector('#prog-container')
 
 
 
+
+
+
+
+
+// drag n drop
+const dropZone = document.querySelector('#drop-zone')
+
+dropZone.ondrop = (e) => {
+    e.preventDefault()
+
+    dropZone.classList.remove('highlight')
+    // console.log(e.dataTransfer.files)
+    uploadFiles(e.dataTransfer.files)
+}
+
+dropZone.ondragover = (e) => {
+    e.preventDefault()
+
+    dropZone.classList.add('highlight')
+}
+
+dropZone.ondragleave = () => {
+
+    dropZone.classList.remove('highlight')
+}
+
+
+
+const menu = document.querySelector('#menu') //menu for right click
+// function for right click
+const rightClick = (e, isFavourite, mode) => {
+    e.preventDefault()
+
+    // console.log(mode)
+
+    if (isFavourite) {
+        document.querySelector('#fav-menu').innerHTML = 'Remove from favourite'
+        document.querySelector('#star-outline').style.display = 'none'
+        document.querySelector('#star-fill').style.display = 'inline-block'
+    } else {
+        document.querySelector('#fav-menu').innerHTML = 'Add to favourite'
+        document.querySelector('#star-outline').style.display = 'inline-block'
+        document.querySelector('#star-fill').style.display = 'none'
+    }
+
+    let xP = e.clientX / window.innerWidth * 100
+    let yP = e.clientY / window.innerHeight * 100
+
+    if (xP < 80) {
+        menu.style.left = xP + '%'
+        menu.style.right = 'auto'
+    } else {
+        menu.style.left = 'auto'
+        menu.style.right = (100 - xP) + '%'
+    }
+
+    if (yP < 60) {
+        menu.style.top = yP + '%'
+        menu.style.bottom = 'auto'
+    } else {
+        menu.style.top = 'auto'
+        menu.style.bottom = (100 - yP) + '%'
+    }
+
+    menu.classList.add('show')
+    menu.onclick = () => {
+        refreshByMode(mode)
+    }
+}
+
+
+
+
+
+
+
+// refresh with new data
+const refresh = (ref, MODE) => {
+
+    // console.log(MODE)
+
+    // show loader
+    let myDriveDisplay = document.querySelector('#' + ref)
+    myDriveDisplay.innerHTML = `<div class=" col-span-full"><img src="assets/loading.gif" class=" h-20 m-auto mt-20" /></div>`
+
+    let myForm = new FormData() // create form object
+
+    myForm.append('data_type', 'get_files') // give this request function a data type of get files
+    myForm.append('mode', MODE) // give this request function the mode coming into it
+
+    let xhr = new XMLHttpRequest() // create object for making request
+
+    // console.log(xhr)
+
+    // console.log(xhr.upload)
+
+    xhr.onreadystatechange = () => {
+
+        if (xhr.readyState == 4) { // last state that will determine if success or fail
+
+            if (xhr.status == 200) { // 200: connection is okay
+
+                // console.log(xhr.responseText)
+
+                let myDriveDisplay = document.querySelector('#' + ref)
+                myDriveDisplay.innerHTML = ""
+
+                let obj = JSON.parse(xhr.responseText)
+
+                if (obj.success && obj.data_type == "get_files") {
+                    // recreate display
+
+                    for (let i = 0; i < obj.rows.length; i++) {
+
+                        let container = document.createElement('div')
+                        container.className = " w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300"
+                        container.setAttribute("id", "main-body-item")
+
+                        let isFavourite = false
+                        if (obj.rows[i].favourite == 1)
+                            isFavourite = true
+
+                        container.innerHTML = `
+                            <div class=" py-2 px-4 w-full truncate overflow-hidden z-10">
+                                ${obj.rows[i].icon}
+                                <span class="">${obj.rows[i].file_name}</span>
+                            </div>
+                            <div class=" h-40 overflow-hidden rounded-md">
+                                <!-- <img id="img" src="assets/b.png" alt="" class=" cursor-pointer w-full h-full object-cover transition hover:scale-105"> -->
+                            </div>
+                        `
+
+                        container.oncontextmenu = (e) => {
+                            rightClick(e, isFavourite, MODE)
+                            // console.log(obj.rows[i].id)
+                        }
+
+                        myDriveDisplay.appendChild(container)
+                    }
+                } else {
+                    myDriveDisplay.innerHTML = `
+                        <div class=" col-span-full text-lg font-semibold text-gray-500 mt-20">Empty!</div>
+                    `
+                }
+            } else {
+                // console.log(xhr)
+                console.log(xhr.responseText)
+                console.log('Error oo, Gbagam')
+            }
+        }
+    }
+
+    xhr.open('post', 'includes/api.php', true) // open
+    xhr.send(myForm) // send set of data
+}
+
+refresh('my-drive', 'MYDRIVE')
+
+
+
+
 // server request
 let uploading = false
 
@@ -190,6 +345,8 @@ const uploadFiles = (files) => {
     uploading = true
 
     let myForm = new FormData() // create form object
+
+    myForm.append('data_type', 'upload_files') // give this request function a data type of upload files
 
     for (let i = 0; i < files.length; i++) {
         myForm.append('file' + i, files[i])
@@ -224,7 +381,14 @@ const uploadFiles = (files) => {
             uploading = false
 
             if (xhr.status == 200) { // 200: connection is okay
-                alert(xhr.responseText)
+
+                let obj = JSON.parse(xhr.responseText)
+                if (obj.success) {
+                    console.log('Upload complete')
+                    refresh()
+                } else {
+                    console.log('Upload error')
+                }
                 progressContainer.classList.remove('show')
                 progressBar.style.width = '0%'
                 progressPer.innerHTML = '0%'
@@ -243,24 +407,15 @@ const uploadFiles = (files) => {
 
 
 
-// drag n drop
-const dropZone = document.querySelector('#drop-zone')
+// right click
+// const mainBodyItems = document.querySelectorAll('#main-body-item')
 
-dropZone.ondrop = (e) => {
-    e.preventDefault()
+// mainBodyItems.forEach((item) => {
+//     item.oncontextmenu = (e) => {
+//         rightClick(e)
+//     }
+// })
 
-    dropZone.classList.remove('highlight')
-    // console.log(e.dataTransfer.files)
-    uploadFiles(e.dataTransfer.files)
-}
-
-dropZone.ondragover = (e) => {
-    e.preventDefault()
-
-    dropZone.classList.add('highlight')
-}
-
-dropZone.ondragleave = () => {
-
-    dropZone.classList.remove('highlight')
+window.onclick = () => {
+    menu.classList.remove('show')
 }
