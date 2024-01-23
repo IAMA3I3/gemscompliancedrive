@@ -1,12 +1,23 @@
 <?php
 
-sleep(1);
+require_once './session.php';
+
+// sleep(1);
 
 require './functions.php';
 
 $info = []; //initialize
 
 $info['success'] = false;
+$info['LOGGED_IN'] = is_logged_in();
+
+function is_logged_in() {
+
+    if (!empty($_SESSION['MY_DRIVE_USER']) && is_array($_SESSION['MY_DRIVE_USER']))
+        return true;
+
+    return false;
+}
 
 if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if request method is post & must have data type variable
 

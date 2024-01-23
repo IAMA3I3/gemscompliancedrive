@@ -1,3 +1,9 @@
+var LOGGED_IN = false
+
+
+
+
+
 // pop up images/videos
 var images = document.querySelectorAll('#img')
 var pop = document.querySelector('#popup')
@@ -7,56 +13,183 @@ var closeImgBtn = document.querySelector('#popup #close-img')
 var leftBtn = document.querySelector('#popup #left-btn')
 var rightBtn = document.querySelector('#popup #right-btn')
 
+// console.log(images)
+
+
 
 const isImage = ['gif', 'jpg', 'jpeg', 'png', 'jfif', 'jif', 'jfi']
 const isVideo = ['mpg', 'mp2', 'mpeg', 'mpe', 'mpv', 'mp4', 'mov']
 let position = 0
 
 const assignSrc = (e) => {
-    if (isImage.includes(e.getAttribute('src').split('.').pop().toLowerCase())) {
+    if (isImage.includes(e.split('.').pop().toLowerCase())) {
         pop.classList.add('show')
         popImage.style.display = "inline-block"
         popVideo.style.display = "none"
-        popImage.src = e.getAttribute('src')
-    } else if (isVideo.includes(e.getAttribute('src').split('.').pop().toLowerCase())) {
+        popImage.src = 'includes/' + e
+    } else if (isVideo.includes(e.split('.').pop().toLowerCase())) {
         pop.classList.add('show')
         popImage.style.display = "none"
         popVideo.style.display = "inline-block"
-        popVideo.src = e.getAttribute('src')
+        popVideo.src = 'includes/' + e
     } else {
-        console.log("Not valid")
+        // console.log("Not valid")
+        pop.classList.add('show')
+        popImage.style.display = "inline-block"
+        popVideo.style.display = "none"
+        popImage.src = 'assets/q.png'
     }
 }
 
-images.forEach((image, index) => {
-    image.onclick = () => {
-        position = index
-        // console.log(position, "current")
-        assignSrc(image)
-    }
-})
+// images.forEach((image, index) => {
+//     image.onclick = () => {
+//         position = index
+//         // console.log(position, "current")
+//         assignSrc(image)
+//     }
+// })
 
-leftBtn.onclick = () => {
-    position--
-    if (position < 0) {
-        position = images.length - 1
-    }
-    assignSrc(images[position])
-    // console.log(position, "prev")
-}
 
-rightBtn.onclick = () => {
-    position++
-    if (position == images.length) {
-        position = 0
-    }
-    assignSrc(images[position])
-    // console.log(position, "next")
-}
 
 closeImgBtn.onclick = () => {
     pop.classList.remove('show')
 }
+
+
+
+
+
+// refresh with new data
+const refresh = (ref, MODE) => {
+
+    // console.log(MODE)
+
+    // show loader
+    let myDriveDisplay = document.querySelector('#' + ref)
+    myDriveDisplay.innerHTML = `<div class=" col-span-full"><img src="assets/loading.gif" class=" h-20 m-auto mt-20" /></div>`
+
+    let myForm = new FormData() // create form object
+
+    myForm.append('data_type', 'get_files') // give this request function a data type of get files
+    myForm.append('mode', MODE) // give this request function the mode coming into it
+
+    let xhr = new XMLHttpRequest() // create object for making request
+
+    // console.log(xhr)
+
+    // console.log(xhr.upload)
+
+    xhr.onreadystatechange = () => {
+
+        if (xhr.readyState == 4) { // last state that will determine if success or fail
+
+            if (xhr.status == 200) { // 200: connection is okay
+
+                // console.log(xhr.responseText)
+
+                let myDriveDisplay = document.querySelector('#' + ref)
+                myDriveDisplay.innerHTML = ""
+
+                let obj = JSON.parse(xhr.responseText)
+
+                if (obj.success && obj.data_type == "get_files") {
+                    // recreate display 
+
+                    for (let i = 0; i < obj.rows.length; i++) {
+
+                        let container = document.createElement('div')
+                        container.className = " w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300"
+                        container.setAttribute("id", "main-body-item")
+
+                        let isFavourite = false
+                        if (obj.rows[i].favourite == 1)
+                            isFavourite = true
+
+                        let cardTitle = document.createElement('div')
+                        cardTitle.className = " py-2 px-4 w-full truncate overflow-hidden z-10"
+                        cardTitle.innerHTML = `
+                            ${obj.rows[i].icon}
+                            <span class="">${obj.rows[i].file_name}</span>
+                        `
+
+                        let imgVid = obj.rows[i].file_path
+
+                        let cardImg
+                        if (isImage.includes(imgVid.split('.').pop().toLowerCase())) {
+                            cardImg = document.createElement('img')
+                            cardImg.src = `includes/${obj.rows[i].file_path}`
+                        } else if (isVideo.includes(imgVid.split('.').pop().toLowerCase())) {
+                            cardImg = document.createElement('video')
+                            cardImg.src = `includes/${obj.rows[i].file_path}`
+                        } else {
+                            cardImg = document.createElement('img')
+                            cardImg.src = "assets/q.png"
+                        }
+
+                        cardImg.className = " cursor-pointer w-full h-full object-cover transition hover:scale-105"
+                        cardImg.setAttribute("id", "img")
+
+                        let cardBody = document.createElement('div')
+                        cardBody.className = " h-40 overflow-hidden rounded-md"
+                        cardBody.appendChild(cardImg)
+
+                        container.appendChild(cardTitle)
+                        container.appendChild(cardBody)
+
+                        container.oncontextmenu = (e) => {
+                            rightClick(e, isFavourite, MODE)
+                            // console.log(obj.rows[i].id)
+                        }
+
+                        cardImg.onclick = () => {
+                            position = i
+                            assignSrc(obj.rows[i].file_path)
+                        }
+
+                        leftBtn.onclick = () => {
+                            position--
+                            if (position < 0) {
+                                position = obj.rows.length - 1
+                            }
+                            assignSrc(obj.rows[position].file_path)
+                            // console.log(position, "prev")
+                        }
+
+                        rightBtn.onclick = () => {
+                            position++
+                            if (position == obj.rows.length) {
+                                position = 0
+                            }
+                            assignSrc(obj.rows[position].file_path)
+                            // console.log(position, "next")
+                        }
+
+                        // console.log(container)
+
+                        myDriveDisplay.appendChild(container)
+                    }
+                } else {
+                    myDriveDisplay.innerHTML = `
+                        <div class=" col-span-full text-lg font-semibold text-gray-500 mt-20">Empty!</div>
+                    `
+                }
+            } else {
+                // console.log(xhr)
+                console.log(xhr.responseText)
+                console.log('Error oo, Gbagam')
+            }
+        }
+    }
+
+    xhr.open('post', 'includes/api.php', true) // open
+    xhr.send(myForm) // send set of data
+}
+
+
+refresh('my-drive', 'MYDRIVE')
+
+
+
 
 
 
@@ -247,90 +380,6 @@ const rightClick = (e, isFavourite, mode) => {
 
 
 
-// refresh with new data
-const refresh = (ref, MODE) => {
-
-    // console.log(MODE)
-
-    // show loader
-    let myDriveDisplay = document.querySelector('#' + ref)
-    myDriveDisplay.innerHTML = `<div class=" col-span-full"><img src="assets/loading.gif" class=" h-20 m-auto mt-20" /></div>`
-
-    let myForm = new FormData() // create form object
-
-    myForm.append('data_type', 'get_files') // give this request function a data type of get files
-    myForm.append('mode', MODE) // give this request function the mode coming into it
-
-    let xhr = new XMLHttpRequest() // create object for making request
-
-    // console.log(xhr)
-
-    // console.log(xhr.upload)
-
-    xhr.onreadystatechange = () => {
-
-        if (xhr.readyState == 4) { // last state that will determine if success or fail
-
-            if (xhr.status == 200) { // 200: connection is okay
-
-                // console.log(xhr.responseText)
-
-                let myDriveDisplay = document.querySelector('#' + ref)
-                myDriveDisplay.innerHTML = ""
-
-                let obj = JSON.parse(xhr.responseText)
-
-                if (obj.success && obj.data_type == "get_files") {
-                    // recreate display
-
-                    for (let i = 0; i < obj.rows.length; i++) {
-
-                        let container = document.createElement('div')
-                        container.className = " w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300"
-                        container.setAttribute("id", "main-body-item")
-
-                        let isFavourite = false
-                        if (obj.rows[i].favourite == 1)
-                            isFavourite = true
-
-                        container.innerHTML = `
-                            <div class=" py-2 px-4 w-full truncate overflow-hidden z-10">
-                                ${obj.rows[i].icon}
-                                <span class="">${obj.rows[i].file_name}</span>
-                            </div>
-                            <div class=" h-40 overflow-hidden rounded-md">
-                                <!-- <img id="img" src="assets/b.png" alt="" class=" cursor-pointer w-full h-full object-cover transition hover:scale-105"> -->
-                            </div>
-                        `
-
-                        container.oncontextmenu = (e) => {
-                            rightClick(e, isFavourite, MODE)
-                            // console.log(obj.rows[i].id)
-                        }
-
-                        myDriveDisplay.appendChild(container)
-                    }
-                } else {
-                    myDriveDisplay.innerHTML = `
-                        <div class=" col-span-full text-lg font-semibold text-gray-500 mt-20">Empty!</div>
-                    `
-                }
-            } else {
-                // console.log(xhr)
-                console.log(xhr.responseText)
-                console.log('Error oo, Gbagam')
-            }
-        }
-    }
-
-    xhr.open('post', 'includes/api.php', true) // open
-    xhr.send(myForm) // send set of data
-}
-
-refresh('my-drive', 'MYDRIVE')
-
-
-
 
 // server request
 let uploading = false
@@ -409,6 +458,7 @@ const uploadFiles = (files) => {
 
 // right click
 // const mainBodyItems = document.querySelectorAll('#main-body-item')
+// console.log(mainBodyItems)
 
 // mainBodyItems.forEach((item) => {
 //     item.oncontextmenu = (e) => {
