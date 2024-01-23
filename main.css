@@ -52,6 +52,7 @@
     .is-active#left-bar-item{
       @apply bg-slate-500 text-white
     }
+    .pop,
     #prog-container,
     #sub-screen,
     #menu {
@@ -61,6 +62,9 @@
     #sub-screen.is-active,
     #menu.show {
       @apply inline-block
+    }
+    .pop.show {
+      @apply block
     }
     #drop-zone {
       @apply bg-black/10 hover:bg-black/15

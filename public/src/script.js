@@ -1,4 +1,5 @@
 var LOGGED_IN = false
+var USERNAME = false
 
 
 
@@ -92,7 +93,20 @@ const refresh = (ref, MODE) => {
 
                 let obj = JSON.parse(xhr.responseText)
 
+                // console.log(obj.username)
+                // display username
+                if (!USERNAME) {
+                    USERNAME = obj.username
+                    document.querySelector('#username').innerHTML = obj.username
+                }
+
+                // check if user is logged in
+                LOGGED_IN = obj.LOGGED_IN
+                if (!LOGGED_IN)
+                    window.location.href = 'login.php'
+
                 if (obj.success && obj.data_type == "get_files") {
+
                     // recreate display 
 
                     for (let i = 0; i < obj.rows.length; i++) {
