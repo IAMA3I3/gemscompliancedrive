@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
             $file_size = filesize($destination);
             $created_at = date("Y-m-d H:i:s");
             $updated_at = date("Y-m-d H:i:s");
-            $user_id = 0;
+            $user_id = $_SESSION['MY_DRIVE_USER']['id'] ?? 0;
 
             $query = "INSERT INTO my_drive (file_name, file_type, file_size, file_path, user_id, created_at, updated_at) VALUES ('$file_name', '$file_type', '$file_size', '$file_path', '$user_id', '$created_at', '$updated_at')";
             query($query);
@@ -62,26 +62,27 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
         }
     } else if ($_POST['data_type'] == "get_files") {
 
+        $user_id = $_SESSION['MY_DRIVE_USER']['id'] ?? null;
         $mode = $_POST['mode'];
         switch ($mode) {
             case 'MYDRIVE':
-                $query = "SELECT * FROM my_drive ORDER BY id DESC LIMIT 30";
+                $query = "SELECT * FROM my_drive WHERE user_id = '$user_id' ORDER BY id DESC LIMIT 30";
                 break;
 
             case 'FAVOURITES':
-                $query = "SELECT * FROM my_drive WHERE favourite = 1 ORDER BY id DESC LIMIT 30";
+                $query = "SELECT * FROM my_drive WHERE favourite = 1 AND user_id = '$user_id' ORDER BY id DESC LIMIT 30";
                 break;
 
             case 'RECENT':
-                $query = "SELECT * FROM my_drive ORDER BY updated_at DESC LIMIT 30";
+                $query = "SELECT * FROM my_drive WHERE user_id = '$user_id' ORDER BY updated_at DESC LIMIT 30";
                 break;
 
             case 'TRASH':
-                $query = "SELECT * FROM my_drive WHERE trash = 1 ORDER BY id DESC LIMIT 30";
+                $query = "SELECT * FROM my_drive WHERE trash = 1 AND user_id = '$user_id' ORDER BY id DESC LIMIT 30";
                 break;
 
             default:
-                $query = "SELECT * FROM my_drive ORDER BY id DESC LIMIT 30";
+                $query = "SELECT * FROM my_drive WHERE user_id = '$user_id' ORDER BY id DESC LIMIT 30";
                 break;
         }
 
@@ -155,6 +156,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
         }
 
         $info['errors']['email'] = "Wrong email or password";
+    } else if ($_POST['data_type'] == "user_logout") {
+
+        if (isset($_SESSION['MY_DRIVE_USER'])) {
+            unset($_SESSION['MY_DRIVE_USER']);
+        }
+
+        $info['success'] = true;
     }
 }
 

@@ -200,7 +200,39 @@ const refresh = (ref, MODE) => {
 }
 
 
-refresh('my-drive', 'MYDRIVE')
+const refreshAll = () => {
+    refresh('my-drive', 'MYDRIVE')
+    refresh('favourites', 'FAVOURITES')
+    refresh('recent', 'RECENT')
+    refresh('trash', 'TRASH')
+}
+
+refreshAll()
+
+
+const logout = () => {
+
+    let myForm = new FormData()
+    myForm.append('data_type', 'user_logout')
+
+    let xhr = new XMLHttpRequest()
+    xhr.onreadystatechange = () => {
+
+        if (xhr.readyState == 4) {
+
+            if (xhr.status == 200) {
+                
+                // redirect
+                window.location.href = 'login.php'
+            } else {
+                console.log(xhr.responseText)
+            }
+        }
+    }
+
+    xhr.open('post', 'includes/api.php', true) // open
+    xhr.send(myForm) // send set of data
+}
 
 
 
@@ -445,10 +477,12 @@ const uploadFiles = (files) => {
 
             if (xhr.status == 200) { // 200: connection is okay
 
+                console.log(xhr.responseText)
+
                 let obj = JSON.parse(xhr.responseText)
                 if (obj.success) {
                     console.log('Upload complete')
-                    refresh()
+                    refreshAll()
                 } else {
                     console.log('Upload error')
                 }
