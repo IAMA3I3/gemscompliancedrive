@@ -91,6 +91,8 @@ const refresh = (ref, MODE) => {
                 let myDriveDisplay = document.querySelector('#' + ref)
                 myDriveDisplay.innerHTML = ""
 
+                // console.log(xhr.responseText)
+
                 let obj = JSON.parse(xhr.responseText)
 
                 // console.log(obj.username)
@@ -108,7 +110,13 @@ const refresh = (ref, MODE) => {
                 if (obj.success && obj.data_type == "get_files") {
 
                     // recreate display 
+                    console.log(obj.rows_folders[0])
+                    // folders
+                    // for (let i = 0; i < obj.rows_folders.length; i++) {
+                    //     console.log(obj.rows_folders[i])
+                    // }
 
+                    // files
                     for (let i = 0; i < obj.rows.length; i++) {
 
                         let container = document.createElement('div')
@@ -132,20 +140,27 @@ const refresh = (ref, MODE) => {
                         if (isImage.includes(imgVid.split('.').pop().toLowerCase())) {
                             cardImg = document.createElement('img')
                             cardImg.src = `includes/${obj.rows[i].file_path}`
+                            cardImg.className = " cursor-pointer w-full h-full object-cover transition hover:scale-105"
+                            cardImg.setAttribute("id", "img")
                         } else if (isVideo.includes(imgVid.split('.').pop().toLowerCase())) {
                             cardImg = document.createElement('video')
                             cardImg.src = `includes/${obj.rows[i].file_path}`
+                            cardImg.className = " cursor-pointer w-full h-full object-cover transition hover:scale-105"
+                            cardImg.setAttribute("id", "img")
                         } else {
                             cardImg = document.createElement('img')
                             cardImg.src = "assets/q.png"
+                            cardImg.className = " cursor-pointer w-full h-full object-cover transition hover:scale-105"
+                            cardImg.setAttribute("id", "img")
                         }
-
-                        cardImg.className = " cursor-pointer w-full h-full object-cover transition hover:scale-105"
-                        cardImg.setAttribute("id", "img")
 
                         let cardBody = document.createElement('div')
                         cardBody.className = " h-40 overflow-hidden rounded-md"
-                        cardBody.appendChild(cardImg)
+                        if (cardImg) {
+                            cardBody.appendChild(cardImg)
+                        } else if (cardFolder) {
+                            cardBody.appendChild(cardFolder)
+                        }
 
                         container.appendChild(cardTitle)
                         container.appendChild(cardBody)
@@ -156,8 +171,9 @@ const refresh = (ref, MODE) => {
                         }
 
                         cardImg.onclick = () => {
+
                             position = i
-                            assignSrc(obj.rows[i].file_path)
+                            assignSrc(obj.rows[position].file_path)
                         }
 
                         leftBtn.onclick = () => {
@@ -221,7 +237,7 @@ const logout = () => {
         if (xhr.readyState == 4) {
 
             if (xhr.status == 200) {
-                
+
                 // redirect
                 window.location.href = 'login.php'
             } else {
@@ -499,6 +515,107 @@ const uploadFiles = (files) => {
 
     xhr.open('post', 'includes/api.php', true) // open
     xhr.send(myForm) // send set of data
+}
+
+
+
+
+
+// new folder pop up
+const newFolder = document.querySelector('#new-folder-container')
+const createFolderBtn = document.querySelector('#create-folder-btn')
+const newFolderInner = document.querySelector('#new-folder-card')
+const newFolderCloseBtn = document.querySelector('#new-folder-close-btn')
+const newFolderInput = document.querySelector('#new-folder-input')
+
+createFolderBtn.onclick = () => {
+    action.showNewFolderContainer()
+}
+newFolder.onclick = () => {
+    action.hideNewFolderContainer()
+}
+newFolderInner.onclick = (e) => {
+    e.stopPropagation()
+}
+newFolderCloseBtn.onclick = () => {
+    action.hideNewFolderContainer()
+}
+
+
+
+const action = {
+
+    uploading: false,
+    cancelled: false,
+
+    createNewFolder: (e) => {
+
+        let inputValue = newFolderInput.value.trim()
+        action.hideNewFolderContainer()
+
+        let obj = {}
+        obj.data_type = 'new_folder'
+        obj.name = inputValue
+
+        action.send(obj)
+    },
+
+    showNewFolderContainer: () => {
+        newFolder.classList.add('show')
+        newFolderInput.focus()
+        newFolderInput.value = ''
+    },
+
+    hideNewFolderContainer: () => {
+        newFolder.classList.remove('show')
+    },
+
+    send: (obj) => {
+
+        if (action.uploading) {
+            alert("Folder upload in progress")
+            return
+        }
+
+        action.uploading = true
+        action.cancelled = false
+
+        let myForm = new FormData()
+
+        for (key in obj) {
+            myForm.append(key, obj[key])
+        }
+
+        let xhr = new XMLHttpRequest()
+
+        xhr.onerror = () => console.log('an error occured')
+
+        xhr.onreadystatechange = () => {
+
+            if (xhr.readyState == 4) {
+
+                if (xhr.status == 200) {
+
+                    let obj = JSON.parse(xhr.responseText)
+                    if (obj.success) {
+
+                        refreshAll()
+                    } else {
+                        console.log('Could not complete')
+                    }
+                } else {
+                    console.log(xhr.responseText)
+                }
+
+                action.uploading = false
+            }
+        }
+
+        xhr.open('post', 'includes/api.php', true)
+        xhr.send(myForm)
+
+        refreshAll()
+    }
 }
 
 

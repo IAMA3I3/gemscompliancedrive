@@ -52,6 +52,7 @@
     .is-active#left-bar-item{
       @apply bg-slate-500 text-white
     }
+    .pop-flex,
     .pop,
     #prog-container,
     #sub-screen,
@@ -62,6 +63,9 @@
     #sub-screen.is-active,
     #menu.show {
       @apply inline-block
+    }
+    .pop-flex.show {
+      @apply flex
     }
     .pop.show {
       @apply block

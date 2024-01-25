@@ -21,7 +21,7 @@ include './components/header.php';
             <!--  -->
             <div class="h-full md:h-[60%] w-full overflow-x-hidden overflow-y-auto scrollbar *:truncate *:my-1 first:*:mb-8">
                 <!--  -->
-                <div class=" cursor-pointer py-2 px-6 rounded-full bg-blue-500 text-white hover:bg-blue-400 active:scale-95 active:text-white shadow-lg">
+                <div class=" cursor-pointer py-2 px-6 rounded-full bg-blue-500 text-white hover:bg-blue-400 active:scale-95 active:text-white shadow-lg" id="create-folder-btn">
                     <i class="fa-solid fa-folder-plus w-8"></i>
                     <span>Create Folder</span>
                 </div>
@@ -136,6 +136,9 @@ include './components/header.php';
     <!--  -->
 </div>
 <!--  -->
+
+<!-- pop up new folder -->
+<?php include './new_folder.php'; ?>
 
 <?php
 

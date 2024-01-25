@@ -39,3 +39,12 @@ function query($query)
 
     return false;
 }
+
+function is_logged_in()
+{
+
+    if (!empty($_SESSION['MY_DRIVE_USER']) && is_array($_SESSION['MY_DRIVE_USER']))
+        return true;
+
+    return false;
+}

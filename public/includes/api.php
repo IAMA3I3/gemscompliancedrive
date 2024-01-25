@@ -10,7 +10,6 @@ $info = []; //initialize
 
 $info['success'] = false;
 $info['LOGGED_IN'] = is_logged_in();
-$info['username'] = $_SESSION['MY_DRIVE_USER']['username'] ?? 'User';
 $info['data_type'] = $_POST['data_type'] ?? ''; // set info data type to the recieving data type
 
 if (!$info['LOGGED_IN'] && ($info['data_type'] != 'user_signup' && $info['data_type'] != 'user_login')) {
@@ -18,14 +17,7 @@ if (!$info['LOGGED_IN'] && ($info['data_type'] != 'user_signup' && $info['data_t
     die;
 }
 
-function is_logged_in()
-{
-
-    if (!empty($_SESSION['MY_DRIVE_USER']) && is_array($_SESSION['MY_DRIVE_USER']))
-        return true;
-
-    return false;
-}
+$info['username'] = $_SESSION['MY_DRIVE_USER']['username'] ?? 'User';
 
 if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if request method is post & must have data type variable
 
@@ -66,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
         $mode = $_POST['mode'];
         switch ($mode) {
             case 'MYDRIVE':
+                $query_folder = "SELECT * FROM folders WHERE user_id = '$user_id' ORDER BY id DESC LIMIT 30";
                 $query = "SELECT * FROM my_drive WHERE user_id = '$user_id' ORDER BY id DESC LIMIT 30";
                 break;
 
@@ -86,6 +79,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
                 break;
         }
 
+        if (!empty($query_folder)) {
+            $rows_folders = query($query_folder);
+        }
+
+        if (empty($rows_folders)) {
+            $rows_folders = [];
+        }
+
         $rows = query($query);
 
         if ($rows) {
@@ -93,6 +94,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
                 $rows[$key]['icon'] = $icons[$row['file_type']] ?? '<i class="fa-regular fa-circle-question"></i>';
             }
             $info['rows'] = $rows;
+            $info["success"] = true;
+        }
+
+        if ($rows_folders) {
+            foreach ($rows_folders as $key => $row_folder) {
+                $rows_folders[$key]['icon'] = '<i class="fa-regular fa-folder"></i>';
+            }
+            $info['rows_folders'] = $rows_folders;
             $info["success"] = true;
         }
     } else if ($_POST['data_type'] == "user_signup") {
@@ -163,6 +172,17 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
         }
 
         $info['success'] = true;
+    } else if ($_POST['data_type'] == "new_folder") {
+
+        $name = addslashes($_POST["name"]);
+        $created_at = date("Y-m-d H:i:s");
+        $user_id = $_SESSION['MY_DRIVE_USER']['id'] ?? 0;
+
+        $query = "INSERT INTO folders (name, created_at, user_id) VALUES ('$name', '$created_at', '$user_id')";
+
+        query($query);
+
+        $info["success"] = true;
     }
 }
 
