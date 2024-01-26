@@ -178,11 +178,21 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
         $created_at = date("Y-m-d H:i:s");
         $user_id = $_SESSION['MY_DRIVE_USER']['id'] ?? 0;
 
-        $query = "INSERT INTO folders (name, created_at, user_id) VALUES ('$name', '$created_at', '$user_id')";
+        // validation
+        $errors = [];
 
-        query($query);
+        if (empty($name))
+            $errors['name'] = "Folder name cannot be empty";
 
-        $info["success"] = true;
+        if (empty($errors)) {
+            $query = "INSERT INTO folders (name, created_at, user_id) VALUES ('$name', '$created_at', '$user_id')";
+
+            query($query);
+
+            $info["success"] = true;
+        }
+
+        $info['errors'] = $errors;
     }
 }
 

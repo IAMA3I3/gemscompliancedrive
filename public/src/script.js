@@ -110,11 +110,42 @@ const refresh = (ref, MODE) => {
                 if (obj.success && obj.data_type == "get_files") {
 
                     // recreate display 
-                    console.log(obj.rows_folders[0])
                     // folders
-                    // for (let i = 0; i < obj.rows_folders.length; i++) {
-                    //     console.log(obj.rows_folders[i])
-                    // }
+                    if (obj.rows_folders) {
+                        for (let i = 0; i < obj.rows_folders.length; i++) {
+
+                            let folderContainer = document.createElement('div')
+                            folderContainer.className = " w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300"
+                            folderContainer.setAttribute("id", "main-body-item")
+
+                            let isFavourite = false
+
+                            let folderCardTitle = document.createElement('div')
+                            folderCardTitle.className = " py-2 px-4 w-full truncate overflow-hidden z-10"
+                            folderCardTitle.innerHTML = `
+                                ${obj.rows_folders[i].icon}
+                                <span class="">${obj.rows_folders[i].name}</span>
+                            `
+
+                            let folderInner = document.createElement('div')
+                            folderInner.className = " h-full flex items-center justify-center text-6xl md:text-9xl"
+                            folderInner.innerHTML = `<i class="fa-solid fa-folder"></i>`
+
+                            let folderCardBody = document.createElement('div')
+                            folderCardBody.className = " h-40 overflow-hidden rounded-md"
+                            folderCardBody.appendChild(folderInner)
+
+                            folderContainer.appendChild(folderCardTitle)
+                            folderContainer.appendChild(folderCardBody)
+
+                            folderContainer.oncontextmenu = (e) => {
+                                rightClick(e, isFavourite, MODE)
+                                // console.log(obj.rows[i].id)
+                            }
+
+                            myDriveDisplay.appendChild(folderContainer)
+                        }
+                    }
 
                     // files
                     for (let i = 0; i < obj.rows.length; i++) {
@@ -156,11 +187,7 @@ const refresh = (ref, MODE) => {
 
                         let cardBody = document.createElement('div')
                         cardBody.className = " h-40 overflow-hidden rounded-md"
-                        if (cardImg) {
-                            cardBody.appendChild(cardImg)
-                        } else if (cardFolder) {
-                            cardBody.appendChild(cardFolder)
-                        }
+                        cardBody.appendChild(cardImg)
 
                         container.appendChild(cardTitle)
                         container.appendChild(cardBody)
@@ -551,7 +578,9 @@ const action = {
     createNewFolder: (e) => {
 
         let inputValue = newFolderInput.value.trim()
-        action.hideNewFolderContainer()
+        if (inputValue != '') {
+            action.hideNewFolderContainer()
+        }
 
         let obj = {}
         obj.data_type = 'new_folder'
@@ -564,6 +593,7 @@ const action = {
         newFolder.classList.add('show')
         newFolderInput.focus()
         newFolderInput.value = ''
+        document.querySelector('#new-folder-error').innerHTML = ''
     },
 
     hideNewFolderContainer: () => {
@@ -601,7 +631,8 @@ const action = {
 
                         refreshAll()
                     } else {
-                        console.log('Could not complete')
+                        let errorMssg = document.querySelector('#new-folder-error')
+                        errorMssg.innerHTML = obj.errors.name
                     }
                 } else {
                     console.log(xhr.responseText)
