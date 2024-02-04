@@ -96,7 +96,7 @@ include './components/header.php';
         <i class=" w-8 fa-regular fa-folder-open"></i>
         <span>Move</span>
     </div>
-    <div class="">
+    <div class="" id="menu-delete">
         <i class=" w-8 fa-regular fa-trash-can"></i>
         <span>Delete</span>
     </div>
@@ -139,6 +139,9 @@ include './components/header.php';
 
 <!-- pop up new folder -->
 <?php include './new_folder.php'; ?>
+
+<!-- pop up logout -->
+<?php include './logout.php' ?>
 
 <?php
 

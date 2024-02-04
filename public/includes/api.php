@@ -18,6 +18,7 @@ if (!$info['LOGGED_IN'] && ($info['data_type'] != 'user_signup' && $info['data_t
 }
 
 $info['username'] = $_SESSION['MY_DRIVE_USER']['username'] ?? 'User';
+$info['folder_tabs'] = [];
 
 if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if request method is post & must have data type variable
 
@@ -46,8 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
             $created_at = date("Y-m-d H:i:s");
             $updated_at = date("Y-m-d H:i:s");
             $user_id = $_SESSION['MY_DRIVE_USER']['id'] ?? 0;
+            $folder_id = $_POST['folder_id'] ?? 0;
 
-            $query = "INSERT INTO my_drive (file_name, file_type, file_size, file_path, user_id, created_at, updated_at) VALUES ('$file_name', '$file_type', '$file_size', '$file_path', '$user_id', '$created_at', '$updated_at')";
+            $query = "INSERT INTO my_drive (file_name, file_type, file_size, file_path, user_id, created_at, updated_at, folder_id) VALUES ('$file_name', '$file_type', '$file_size', '$file_path', '$user_id', '$created_at', '$updated_at', '$folder_id')";
             query($query);
 
             $info["success"] = true;
@@ -56,10 +58,34 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
 
         $user_id = $_SESSION['MY_DRIVE_USER']['id'] ?? null;
         $mode = $_POST['mode'];
+        $folder_id = $_POST['folder_id'] ?? 0;
+
+        // get folder tabs
+        $has_parent = true;
+        $num = 0;
+        $my_folder_id = $folder_id;
+
+        while ($has_parent && $num < 100) {
+
+            $query = "SELECT * FROM folders WHERE id = '$my_folder_id' LIMIT 1";
+            $row = query($query);
+    
+            if ($row) {
+                $info['folder_tabs'][] = $row[0];
+                if ($row[0]['parent'] == 0) {
+                    $has_parent = false;
+                } else {
+                    $my_folder_id = $row[0]['parent'];
+                }
+            }
+
+            $num++;
+        }
+
         switch ($mode) {
             case 'MYDRIVE':
-                $query_folder = "SELECT * FROM folders WHERE user_id = '$user_id' ORDER BY id DESC LIMIT 30";
-                $query = "SELECT * FROM my_drive WHERE user_id = '$user_id' ORDER BY id DESC LIMIT 30";
+                $query_folder = "SELECT * FROM folders WHERE user_id = '$user_id' AND parent = '$folder_id' ORDER BY id DESC LIMIT 30";
+                $query = "SELECT * FROM my_drive WHERE user_id = '$user_id' AND folder_id = '$folder_id' ORDER BY id DESC LIMIT 30";
                 break;
 
             case 'FAVOURITES':
@@ -75,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
                 break;
 
             default:
-                $query = "SELECT * FROM my_drive WHERE user_id = '$user_id' ORDER BY id DESC LIMIT 30";
+                $query = "SELECT * FROM my_drive WHERE user_id = '$user_id' AND folder_id = '$folder_id' ORDER BY id DESC LIMIT 30";
                 break;
         }
 
@@ -177,6 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
         $name = addslashes($_POST["name"]);
         $created_at = date("Y-m-d H:i:s");
         $user_id = $_SESSION['MY_DRIVE_USER']['id'] ?? 0;
+        $parent = $_POST['folder_id'] ?? 0;
 
         // validation
         $errors = [];
@@ -185,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
             $errors['name'] = "Folder name cannot be empty";
 
         if (empty($errors)) {
-            $query = "INSERT INTO folders (name, created_at, user_id) VALUES ('$name', '$created_at', '$user_id')";
+            $query = "INSERT INTO folders (name, created_at, user_id, parent) VALUES ('$name', '$created_at', '$user_id', '$parent')";
 
             query($query);
 
@@ -193,6 +220,22 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
         }
 
         $info['errors'] = $errors;
+    } else if ($_POST['data_type'] == "delete_row") {
+
+        // delete from db
+        $id = $_POST['id'];
+        $file_type = $_POST['file_type'];
+        $user_id = $_SESSION['MY_DRIVE_USER']['id'];
+
+        if ($file_type == 'FOLDER') {
+            $query = "DELETE FROM folders WHERE id = '$id' AND user_id = '$user_id' LIMIT 1";
+        } else {
+            $query = "DELETE FROM my_drive WHERE id = '$id' AND user_id = '$user_id' LIMIT 1";
+        }
+
+        query($query);
+
+        $info['success'] = true;
     }
 }
 

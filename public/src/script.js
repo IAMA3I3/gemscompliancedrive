@@ -1,5 +1,6 @@
 var LOGGED_IN = false
 var USERNAME = false
+var FOLDER_ID = 0
 
 
 
@@ -20,6 +21,7 @@ var rightBtn = document.querySelector('#popup #right-btn')
 
 const isImage = ['gif', 'jpg', 'jpeg', 'png', 'jfif', 'jif', 'jfi']
 const isVideo = ['mpg', 'mp2', 'mpeg', 'mpe', 'mpv', 'mp4', 'mov']
+let displayImages = []
 let position = 0
 
 const assignSrc = (e) => {
@@ -59,6 +61,15 @@ closeImgBtn.onclick = () => {
 
 
 
+// switch folder
+const changeFolder = (folder_id) => {
+
+    FOLDER_ID = folder_id
+    // refreshAll()
+    refresh('my-drive', 'MYDRIVE')
+}
+
+
 
 // refresh with new data
 const refresh = (ref, MODE) => {
@@ -73,6 +84,7 @@ const refresh = (ref, MODE) => {
 
     myForm.append('data_type', 'get_files') // give this request function a data type of get files
     myForm.append('mode', MODE) // give this request function the mode coming into it
+    myForm.append('folder_id', FOLDER_ID)
 
     let xhr = new XMLHttpRequest() // create object for making request
 
@@ -107,7 +119,44 @@ const refresh = (ref, MODE) => {
                 if (!LOGGED_IN)
                     window.location.href = 'login.php'
 
+                // update folder tabs
+                let folderTabs = document.querySelector('#folder-tabs')
+                let extendedFolder = document.querySelector('#extended-folders')
+                let dropFolder = document.querySelector('#drop-down-folder-tabs')
+                folderTabs.innerHTML = ""
+                dropFolder.innerHTML = ""
+                dropFolder.classList.remove('show')
+                extendedFolder.classList.remove('show')
+                for (let i = obj.folder_tabs.length - 1; i >= 0; i--) {
+                    // console.log(obj.folder_tabs[i].name)
+                    if (i < 3) {
+                        folderTabs.innerHTML += `
+                            <div onclick="changeFolder(${obj.folder_tabs[i].id})" class="${(i == 0) ? 'bg-blue-500' : 'bg-blue-400'} text-sm font-semibold rounded-full py-1 px-4 text-white cursor-pointer hover:bg-blue-500 active:scale-95 max-w-32 overflow-hidden flex items-center gap-2">
+                                <i class="fa-regular fa-folder-open"></i>
+                                <span class=" truncate">${obj.folder_tabs[i].name}</span>
+                            </div>
+                        `
+                    } else if (i >= 3) {
+                        // console.log(obj.folder_tabs[i].name)
+                        extendedFolder.classList.add('show')
+                        dropFolder.innerHTML += `
+                            <div onclick="changeFolder(${obj.folder_tabs[i].id})" class=" py-1 px-4 hover:bg-blue-500 hover:text-white cursor-pointer flex items-center gap-2">
+                                <i class="fa-regular fa-folder-open"></i>
+                                <span class=" truncate">${obj.folder_tabs[i].name}</span>
+                            </div>
+                        `
+                    }
+                }
+
+                if (extendedFolder.classList.contains('show')) {
+                    extendedFolder.onclick = (e) => {
+                        e.stopPropagation()
+                        dropFolder.classList.toggle('show')
+                    }
+                }
+
                 if (obj.success && obj.data_type == "get_files") {
+
 
                     // recreate display 
                     // folders
@@ -139,8 +188,14 @@ const refresh = (ref, MODE) => {
                             folderContainer.appendChild(folderCardBody)
 
                             folderContainer.oncontextmenu = (e) => {
-                                rightClick(e, isFavourite, MODE)
+                                rightClick(e, isFavourite, MODE, obj.rows_folders[i].id, 'FOLDER')
                                 // console.log(obj.rows[i].id)
+                            }
+
+                            folderContainer.ondblclick = (e) => {
+                                e.preventDefault()
+                                // console.log(obj.rows_folders[i].id)
+                                changeFolder(obj.rows_folders[i].id)
                             }
 
                             myDriveDisplay.appendChild(folderContainer)
@@ -148,86 +203,107 @@ const refresh = (ref, MODE) => {
                     }
 
                     // files
-                    for (let i = 0; i < obj.rows.length; i++) {
+                    if (obj.rows) {
+                        displayImages = []
 
-                        let container = document.createElement('div')
-                        container.className = " w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300"
-                        container.setAttribute("id", "main-body-item")
+                        for (let i = 0; i < obj.rows.length; i++) {
 
-                        let isFavourite = false
-                        if (obj.rows[i].favourite == 1)
-                            isFavourite = true
+                            let container = document.createElement('div')
+                            container.className = " w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300"
+                            container.setAttribute("id", "main-body-item")
 
-                        let cardTitle = document.createElement('div')
-                        cardTitle.className = " py-2 px-4 w-full truncate overflow-hidden z-10"
-                        cardTitle.innerHTML = `
-                            ${obj.rows[i].icon}
-                            <span class="">${obj.rows[i].file_name}</span>
-                        `
+                            let isFavourite = false
+                            if (obj.rows[i].favourite == 1)
+                                isFavourite = true
 
-                        let imgVid = obj.rows[i].file_path
+                            let cardTitle = document.createElement('div')
+                            cardTitle.className = " py-2 px-4 w-full truncate overflow-hidden z-10"
+                            cardTitle.innerHTML = `
+                                ${obj.rows[i].icon}
+                                <span class="">${obj.rows[i].file_name}</span>
+                            `
 
-                        let cardImg
-                        if (isImage.includes(imgVid.split('.').pop().toLowerCase())) {
-                            cardImg = document.createElement('img')
-                            cardImg.src = `includes/${obj.rows[i].file_path}`
-                            cardImg.className = " cursor-pointer w-full h-full object-cover transition hover:scale-105"
-                            cardImg.setAttribute("id", "img")
-                        } else if (isVideo.includes(imgVid.split('.').pop().toLowerCase())) {
-                            cardImg = document.createElement('video')
-                            cardImg.src = `includes/${obj.rows[i].file_path}`
-                            cardImg.className = " cursor-pointer w-full h-full object-cover transition hover:scale-105"
-                            cardImg.setAttribute("id", "img")
-                        } else {
-                            cardImg = document.createElement('img')
-                            cardImg.src = "assets/q.png"
-                            cardImg.className = " cursor-pointer w-full h-full object-cover transition hover:scale-105"
-                            cardImg.setAttribute("id", "img")
-                        }
+                            let imgVid = obj.rows[i].file_path
 
-                        let cardBody = document.createElement('div')
-                        cardBody.className = " h-40 overflow-hidden rounded-md"
-                        cardBody.appendChild(cardImg)
+                            // console.log(obj.rows[i].folder_id)
 
-                        container.appendChild(cardTitle)
-                        container.appendChild(cardBody)
-
-                        container.oncontextmenu = (e) => {
-                            rightClick(e, isFavourite, MODE)
-                            // console.log(obj.rows[i].id)
-                        }
-
-                        cardImg.onclick = () => {
-
-                            position = i
-                            assignSrc(obj.rows[position].file_path)
-                        }
-
-                        leftBtn.onclick = () => {
-                            position--
-                            if (position < 0) {
-                                position = obj.rows.length - 1
+                            let cardImg
+                            if (isImage.includes(imgVid.split('.').pop().toLowerCase())) {
+                                cardImg = document.createElement('img')
+                                cardImg.src = `includes/${obj.rows[i].file_path}`
+                                cardImg.className = " cursor-pointer w-full h-full object-cover transition hover:scale-105"
+                                cardImg.setAttribute("id", "img")
+                            } else if (isVideo.includes(imgVid.split('.').pop().toLowerCase())) {
+                                cardImg = document.createElement('video')
+                                cardImg.src = `includes/${obj.rows[i].file_path}`
+                                cardImg.className = " cursor-pointer w-full h-full object-cover transition hover:scale-105"
+                                cardImg.setAttribute("id", "img")
+                            } else {
+                                cardImg = document.createElement('img')
+                                cardImg.src = "assets/q.png"
+                                cardImg.className = " cursor-pointer w-full h-full object-cover transition hover:scale-105"
+                                cardImg.setAttribute("id", "img")
                             }
-                            assignSrc(obj.rows[position].file_path)
-                            // console.log(position, "prev")
-                        }
 
-                        rightBtn.onclick = () => {
-                            position++
-                            if (position == obj.rows.length) {
-                                position = 0
+                            let cardBody = document.createElement('div')
+                            cardBody.className = " h-40 overflow-hidden rounded-md"
+                            cardBody.appendChild(cardImg)
+
+                            container.appendChild(cardTitle)
+                            container.appendChild(cardBody)
+
+                            container.oncontextmenu = (e) => {
+                                rightClick(e, isFavourite, MODE, obj.rows[i].id, 'FILE')
+                                // console.log(obj.rows[i].id)
                             }
-                            assignSrc(obj.rows[position].file_path)
-                            // console.log(position, "next")
+
+                            // console.log(MODE == "MYDRIVE")
+
+                            if (MODE == "MYDRIVE" && FOLDER_ID == obj.rows[i].folder_id) {
+                                displayImages.push(obj.rows[i].file_path)
+                            }
+
+                            if (MODE != "MYDRIVE") {
+                                displayImages.push(obj.rows[i].file_path)
+                            }
+
+                            cardImg.onclick = () => {
+
+                                position = i
+                                assignSrc(displayImages[position])
+                                // assignSrc(obj.rows[position].file_path)
+                            }
+
+                            leftBtn.onclick = () => {
+                                position--
+                                if (position < 0) {
+                                    position = displayImages.length - 1
+                                    // position = obj.rows.length - 1
+                                }
+                                assignSrc(displayImages[position])
+                                // assignSrc(obj.rows[position].file_path)
+                                // console.log(position, "prev")
+                            }
+
+                            rightBtn.onclick = () => {
+                                position++
+                                if (position == displayImages.length) {
+                                    position = 0
+                                }
+                                assignSrc(displayImages[position])
+                                // assignSrc(obj.rows[position].file_path)
+                                // console.log(position, "next")
+                            }
+
+
+                            // console.log(container)
+
+                            myDriveDisplay.appendChild(container)
                         }
-
-                        // console.log(container)
-
-                        myDriveDisplay.appendChild(container)
                     }
                 } else {
                     myDriveDisplay.innerHTML = `
-                        <div class=" col-span-full text-lg font-semibold text-gray-500 mt-20">Empty!</div>
+                        <div class=" col-span-full text-lg font-semibold text-gray-500 pt-20 select-none">Empty!</div>
                     `
                 }
             } else {
@@ -250,7 +326,8 @@ const refreshAll = () => {
     refresh('trash', 'TRASH')
 }
 
-refreshAll()
+// refreshAll()
+refresh('my-drive', 'MYDRIVE')
 
 
 const logout = () => {
@@ -421,10 +498,33 @@ dropZone.ondragleave = () => {
 
 
 
+
+
+
+// delete
+const deleteRow = (file_type, id) => {
+
+    if (!confirm("Proceed to delete")) {
+        return
+    }
+
+    let obj = {}
+
+    obj.data_type = 'delete_row'
+    obj.file_type = file_type
+    obj.id = id
+
+    action.send(obj)
+}
+
+
+
 const menu = document.querySelector('#menu') //menu for right click
 // function for right click
-const rightClick = (e, isFavourite, mode) => {
+const rightClick = (e, isFavourite, mode, id, type) => {
     e.preventDefault()
+
+    console.log(id, type)
 
     // console.log(mode)
 
@@ -461,6 +561,11 @@ const rightClick = (e, isFavourite, mode) => {
     menu.onclick = () => {
         refreshByMode(mode)
     }
+
+    let deleteBtn = document.querySelector('#menu-delete')
+    deleteBtn.onclick = () => {
+        deleteRow(type, id)
+    }
 }
 
 
@@ -485,6 +590,7 @@ const uploadFiles = (files) => {
     let myForm = new FormData() // create form object
 
     myForm.append('data_type', 'upload_files') // give this request function a data type of upload files
+    myForm.append('folder_id', FOLDER_ID)
 
     for (let i = 0; i < files.length; i++) {
         myForm.append('file' + i, files[i])
@@ -569,7 +675,7 @@ newFolderCloseBtn.onclick = () => {
 }
 
 
-
+// new folder actions
 const action = {
 
     uploading: false,
@@ -585,15 +691,16 @@ const action = {
         let obj = {}
         obj.data_type = 'new_folder'
         obj.name = inputValue
+        obj.folder_id = FOLDER_ID
 
         action.send(obj)
     },
 
     showNewFolderContainer: () => {
+        document.querySelector('#new-folder-error').innerHTML = ''
+        newFolderInput.value = ''
         newFolder.classList.add('show')
         newFolderInput.focus()
-        newFolderInput.value = ''
-        document.querySelector('#new-folder-error').innerHTML = ''
     },
 
     hideNewFolderContainer: () => {
@@ -627,13 +734,8 @@ const action = {
                 if (xhr.status == 200) {
 
                     let obj = JSON.parse(xhr.responseText)
-                    if (obj.success) {
+                    action.handleResult(xhr.responseText, obj)
 
-                        refreshAll()
-                    } else {
-                        let errorMssg = document.querySelector('#new-folder-error')
-                        errorMssg.innerHTML = obj.errors.name
-                    }
                 } else {
                     console.log(xhr.responseText)
                 }
@@ -646,7 +748,39 @@ const action = {
         xhr.send(myForm)
 
         refreshAll()
-    }
+    },
+
+    handleResult: (result, obj) => {
+        alert(result)
+        if (obj.success) {
+
+            refreshAll()
+        } else {
+            let errorMssg = document.querySelector('#new-folder-error')
+            errorMssg.innerHTML = obj.errors.name
+        }
+    },
+}
+
+
+
+
+const logoutContainer = document.querySelector('#logout-container')
+const logoutCard = document.querySelector('#logout-card')
+const logoutCloseBtn = document.querySelector('#logout-close-btn')
+const logoutBtn = document.querySelector('#logout-btn')
+
+logoutBtn.onclick = () => {
+    logoutContainer.classList.add('show')
+}
+logoutContainer.onclick = () => {
+    logoutContainer.classList.remove('show')
+}
+logoutCard.onclick = (e) => {
+    e.stopPropagation()
+}
+logoutCloseBtn.onclick = () => {
+    logoutContainer.classList.remove('show')
 }
 
 
@@ -664,4 +798,6 @@ const action = {
 
 window.onclick = () => {
     menu.classList.remove('show')
+    let dropFolder = document.querySelector('#drop-down-folder-tabs')
+    dropFolder.classList.remove('show')
 }

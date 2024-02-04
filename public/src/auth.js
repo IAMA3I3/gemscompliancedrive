@@ -85,7 +85,7 @@ const login = {
         }
 
         let loginBtn = document.querySelector('#login-btn')
-        loginBtn.innerHTML = 'Saving...'
+        loginBtn.innerHTML = 'Loading...'
 
         let myForm = new FormData()
         myForm.append('data_type', 'user_login')
