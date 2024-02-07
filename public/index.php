@@ -19,7 +19,7 @@ include './components/header.php';
         <!-- left bar -->
         <div class=" w-[20%] h-full border-r border-gray-400 pr-1 md:pr-2">
             <!--  -->
-            <div class="h-full md:h-[60%] w-full overflow-x-hidden overflow-y-auto scrollbar *:truncate *:my-1 first:*:mb-8">
+            <div class="h-full md:h-[65%] w-full overflow-x-hidden overflow-y-auto scrollbar *:truncate *:my-1 first:*:mb-8">
                 <!--  -->
                 <div class=" cursor-pointer py-2 px-6 rounded-full bg-blue-500 text-white hover:bg-blue-400 active:scale-95 active:text-white shadow-lg" id="create-folder-btn">
                     <i class="fa-solid fa-folder-plus w-8"></i>
@@ -29,6 +29,11 @@ include './components/header.php';
                 <div class=" is-active cursor-pointer py-2 px-4 rounded-md hover:bg-slate-300" id="left-bar-item" mode="MYDRIVE">
                     <i class="fa-regular fa-hard-drive w-8"></i>
                     <span>My Drive</span>
+                </div>
+                <!--  -->
+                <div class=" cursor-pointer py-2 px-4 rounded-md hover:bg-slate-300" id="left-bar-item" mode="SHARED">
+                    <i class="fa-solid fa-share-nodes w-8"></i>
+                    <span>Shared</span>
                 </div>
                 <!--  -->
                 <div class=" cursor-pointer py-2 px-4 rounded-md hover:bg-slate-300" id="left-bar-item" mode="FAVOURITES">
@@ -49,7 +54,7 @@ include './components/header.php';
             </div>
             <!--  -->
             <!-- upload -->
-            <div class=" hidden md:inline-block h-[40%]">
+            <div class=" hidden md:inline-block h-[35%]">
                 <label class=" rounded-xl h-full flex justify-center items-center flex-col text-center p-4 border cursor-pointer" id="drop-zone">
                     <i class="fa-solid fa-cloud-arrow-up text-2xl mb-2"></i>
                     <span>Drag and drop files here or click to upload</span>
@@ -71,6 +76,7 @@ include './components/header.php';
         <!-- main body -->
         <?php
         include './my_drive.php';
+        include './shared.php';
         include './favourite.php';
         include './recent.php';
         include './trash.php';
@@ -83,28 +89,37 @@ include './components/header.php';
 
 
 <!-- menu -->
-<div class=" absolute shadow-lg bg-white rounded-sm *:py-2 *:px-4 hover:*:bg-slate-500 hover:*:text-white cursor-pointer overflow-hidden *:text-nowrap" id="menu">
-    <div class="">
+<div class=" absolute shadow-lg bg-white rounded-sm *:py-2 *:px-4 hover:*:bg-slate-500 hover:*:text-white cursor-pointer overflow-hidden *:text-nowrap min-w-44" id="menu">
+    <a href="#" class=" hide-from-trash block" id="menu-preview">
+        <i class=" w-8 fa-solid fa-eye"></i>
+        <span>Preview</span>
+    </a>
+    <a href="#" class=" hide-from-trash block" id="menu-download">
         <i class=" w-8 fa-solid fa-cloud-arrow-down"></i>
         <span>Download</span>
-    </div>
-    <div class="">
+    </a>
+    <div class=" hide-from-trash">
         <i class=" w-8 fa-regular fa-pen-to-square"></i>
         <span>Edit</span>
     </div>
-    <div class="">
+    <div class=" hide-from-trash">
         <i class=" w-8 fa-regular fa-folder-open"></i>
         <span>Move</span>
     </div>
     <div class="" id="menu-delete">
         <i class=" w-8 fa-regular fa-trash-can"></i>
-        <span>Delete</span>
+        <span id="menu-delete-text">Delete</span>
     </div>
-    <div class="">
+    <div class="" id="menu-restore">
+        <!-- <i class=" w-8 fa-solid fa-trash-arrow-up"></i> -->
+        <i class=" w-8 fa-solid fa-rotate-left"></i>
+        <span>Restore</span>
+    </div>
+    <div class=" hide-from-trash" id="menu-share">
         <i class=" w-8 fa-solid fa-share-nodes"></i>
         <span>Share</span>
     </div>
-    <div class="">
+    <div class=" hide-from-trash" id="menu-fav">
         <i class=" w-8 fa-regular fa-star" id="star-outline"></i>
         <i class=" w-8 fa-solid fa-star" id="star-fill"></i>
         <span id="fav-menu">Add to favourites</span>
@@ -140,6 +155,9 @@ include './components/header.php';
 <!-- pop up new folder -->
 <?php include './new_folder.php'; ?>
 
+<!-- pop up share -->
+<?php include './share_modal.php'; ?>
+
 <!-- pop up logout -->
 <?php include './logout.php' ?>
 
@@ -147,3 +165,5 @@ include './components/header.php';
 
 include './components/footer.php';
 ?>
+
+<script src="src/script.js"></script>

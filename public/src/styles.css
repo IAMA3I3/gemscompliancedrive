@@ -1087,8 +1087,8 @@ textarea {
   height: 2rem;
 }
 
-.h-\[40\%\] {
-  height: 40%;
+.h-\[35\%\] {
+  height: 35%;
 }
 
 .h-\[75vh\] {
@@ -1149,6 +1149,10 @@ textarea {
 
 .w-screen {
   width: 100vw;
+}
+
+.min-w-44 {
+  min-width: 11rem;
 }
 
 .max-w-32 {
@@ -3034,6 +3038,10 @@ textarea {
   margin-bottom: 0.25rem;
 }
 
+.\*\:block > * {
+  display: block;
+}
+
 .\*\:truncate > * {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3205,8 +3213,8 @@ textarea {
     height: 2.5rem;
   }
 
-  .md\:h-\[60\%\] {
-    height: 60%;
+  .md\:h-\[65\%\] {
+    height: 65%;
   }
 
   .md\:h-\[80vh\] {

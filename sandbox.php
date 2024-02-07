@@ -129,3 +129,30 @@
     <i class="fa-regular fa-folder-open"></i>
     <span class=" truncate">Folder in Folder</span>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+
+// $query = "SELECT * FROM folders";
+// $rows = query($query);
+
+// if ($rows) {
+//      foreach ($rows as $key => $row) {
+//         $slug = generate_slug();
+//         $id = $row['id'];
+//         $query = "UPDATE folders SET slug = '$slug' WHERE id = '$id' LIMIT 1";
+//         query($query);
+//      }
+// }
+
+?>

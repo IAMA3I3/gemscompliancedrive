@@ -40,6 +40,29 @@ function query($query)
     return false;
 }
 
+function query_row($query)
+{
+
+    global $con;
+
+    $result = mysqli_query($con, $query);
+    if ($result) {
+
+        if (!is_bool($result) && mysqli_num_rows($result) > 0) {
+
+            // $res = [];
+            // while ($row = mysqli_fetch_assoc($result)) {
+            //     $res[] = $row;
+            // }
+            // return $res[0];
+
+            return mysqli_fetch_assoc($result);
+        }
+    }
+
+    return false;
+}
+
 function is_logged_in()
 {
 
@@ -47,4 +70,27 @@ function is_logged_in()
         return true;
 
     return false;
+}
+
+function generate_slug ()
+{
+    $str = "";
+
+    $a = range(0, 9);
+    $b = range('a', 'z');
+    $c = range('A', 'Z');
+
+    $array = array_merge($a, $b, $c);
+    $array[] = '_';
+    $array[] = '-';
+
+    $length = count($array) - 1;
+    $str_length = round(10, 50);
+
+    for ($i=0; $i < $str_length; $i++) { 
+        $key = rand(0, $length);
+        $str .= $array[$key];
+    }
+
+    return $str;
 }

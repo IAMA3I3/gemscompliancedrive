@@ -3,7 +3,7 @@ var USERNAME = false
 var FOLDER_ID = 0
 
 
-
+var RIGHT_CLICKED = {}
 
 
 // pop up images/videos
@@ -78,7 +78,10 @@ const refresh = (ref, MODE) => {
 
     // show loader
     let myDriveDisplay = document.querySelector('#' + ref)
-    myDriveDisplay.innerHTML = `<div class=" col-span-full"><img src="assets/loading.gif" class=" h-20 m-auto mt-20" /></div>`
+    if (myDriveDisplay) {
+
+        myDriveDisplay.innerHTML = `<div class=" col-span-full"><img src="assets/loading.gif" class=" h-20 m-auto mt-20" /></div>`
+    }
 
     let myForm = new FormData() // create form object
 
@@ -101,7 +104,10 @@ const refresh = (ref, MODE) => {
                 // console.log(xhr.responseText)
 
                 let myDriveDisplay = document.querySelector('#' + ref)
-                myDriveDisplay.innerHTML = ""
+                if (myDriveDisplay) {
+
+                    myDriveDisplay.innerHTML = ""
+                }
 
                 // console.log(xhr.responseText)
 
@@ -188,7 +194,7 @@ const refresh = (ref, MODE) => {
                             folderContainer.appendChild(folderCardBody)
 
                             folderContainer.oncontextmenu = (e) => {
-                                rightClick(e, isFavourite, MODE, obj.rows_folders[i].id, 'FOLDER')
+                                rightClick(e, isFavourite, MODE, obj.rows_folders[i], 'FOLDER')
                                 // console.log(obj.rows[i].id)
                             }
 
@@ -198,7 +204,10 @@ const refresh = (ref, MODE) => {
                                 changeFolder(obj.rows_folders[i].id)
                             }
 
-                            myDriveDisplay.appendChild(folderContainer)
+                            if (myDriveDisplay) {
+
+                                myDriveDisplay.appendChild(folderContainer)
+                            }
                         }
                     }
 
@@ -253,7 +262,7 @@ const refresh = (ref, MODE) => {
                             container.appendChild(cardBody)
 
                             container.oncontextmenu = (e) => {
-                                rightClick(e, isFavourite, MODE, obj.rows[i].id, 'FILE')
+                                rightClick(e, isFavourite, MODE, obj.rows[i], 'FILE')
                                 // console.log(obj.rows[i].id)
                             }
 
@@ -298,13 +307,19 @@ const refresh = (ref, MODE) => {
 
                             // console.log(container)
 
-                            myDriveDisplay.appendChild(container)
+                            if (myDriveDisplay) {
+
+                                myDriveDisplay.appendChild(container)
+                            }
                         }
                     }
                 } else {
-                    myDriveDisplay.innerHTML = `
+                    if (myDriveDisplay) {
+
+                        myDriveDisplay.innerHTML = `
                         <div class=" col-span-full text-lg font-semibold text-gray-500 pt-20 select-none">Empty!</div>
-                    `
+                        `
+                    }
                 }
             } else {
                 // console.log(xhr)
@@ -324,10 +339,26 @@ const refreshAll = () => {
     refresh('favourites', 'FAVOURITES')
     refresh('recent', 'RECENT')
     refresh('trash', 'TRASH')
+    refresh('shared', 'SHARED')
 }
 
-// refreshAll()
-refresh('my-drive', 'MYDRIVE')
+refreshAll()
+// refresh('my-drive', 'MYDRIVE')
+
+
+
+
+
+// preview
+let previewBtn = document.querySelector('#menu-preview')
+previewBtn.onclick = () => {
+    preview()
+}
+
+const preview = () => {
+    // console.log(RIGHT_CLICKED.slug)
+    window.open(`preview.php?id=${RIGHT_CLICKED.slug}&type=${RIGHT_CLICKED.type}`, '_blank')
+}
 
 
 const logout = () => {
@@ -392,6 +423,10 @@ const refreshByMode = (mode) => {
     switch (mode) {
         case "MYDRIVE":
             refresh('my-drive', 'MYDRIVE')
+            break;
+
+        case "SHARED":
+            refresh('shared', 'SHARED')
             break;
 
         case "FAVOURITES":
@@ -477,23 +512,26 @@ const progressContainer = document.querySelector('#prog-container')
 // drag n drop
 const dropZone = document.querySelector('#drop-zone')
 
-dropZone.ondrop = (e) => {
-    e.preventDefault()
+if (dropZone) {
 
-    dropZone.classList.remove('highlight')
-    // console.log(e.dataTransfer.files)
-    uploadFiles(e.dataTransfer.files)
-}
-
-dropZone.ondragover = (e) => {
-    e.preventDefault()
-
-    dropZone.classList.add('highlight')
-}
-
-dropZone.ondragleave = () => {
-
-    dropZone.classList.remove('highlight')
+    dropZone.ondrop = (e) => {
+        e.preventDefault()
+    
+        dropZone.classList.remove('highlight')
+        // console.log(e.dataTransfer.files)
+        uploadFiles(e.dataTransfer.files)
+    }
+    
+    dropZone.ondragover = (e) => {
+        e.preventDefault()
+    
+        dropZone.classList.add('highlight')
+    }
+    
+    dropZone.ondragleave = () => {
+    
+        dropZone.classList.remove('highlight')
+    }
 }
 
 
@@ -517,14 +555,86 @@ const deleteRow = (file_type, id) => {
     action.send(obj)
 }
 
+const restoreRow = (file_type, id) => {
+
+    if (!confirm("Proceed to restore")) {
+        return
+    }
+
+    let obj = {}
+
+    obj.data_type = 'restore_row'
+    obj.file_type = file_type
+    obj.id = id
+
+    action.send(obj)
+}
+
+
+// add to favourite
+const addToFavourite = (file_type, id) => {
+
+    if (file_type == 'FOLDER') {
+        return
+    }
+
+    let obj = {}
+
+    obj.id = id
+    obj.data_type = 'add_to_favourite'
+
+    action.send(obj)
+}
+
 
 
 const menu = document.querySelector('#menu') //menu for right click
 // function for right click
-const rightClick = (e, isFavourite, mode, id, type) => {
+const rightClick = (e, isFavourite, mode, itemRow, type) => {
     e.preventDefault()
 
-    console.log(id, type)
+    RIGHT_CLICKED = {'id': itemRow.id, 'type': type, 'slug': itemRow.slug}
+
+    // console.log(RIGHT_CLICKED)
+
+    let hideFromTrashMenu = document.querySelectorAll('.hide-from-trash')
+    let restoreBtn = document.querySelector('#menu-restore')
+    let downloadBtn = document.querySelector('#menu-download')
+    let delBtnText = document.querySelector('#menu-delete-text')
+    let deleteBtn = document.querySelector('#menu-delete')
+
+    delBtnText.innerHTML = "Delete"
+
+    hideFromTrashMenu.forEach((item) => {
+        item.style.display = 'block'
+    })
+    restoreBtn.style.display = 'none'
+
+    if (mode == 'TRASH') {
+        hideFromTrashMenu.forEach((item) => {
+            item.style.display = 'none'
+        })
+        restoreBtn.style.display = 'block'
+        delBtnText.innerHTML = "Delete Permanently"
+    }
+
+    let favBtn = document.querySelector('#menu-fav')
+
+    downloadBtn.setAttribute('href', '#')
+
+    if (type === 'FILE' && mode != 'TRASH') {
+
+        downloadBtn.style.display = 'block'
+        downloadBtn.setAttribute('href', `includes/download.php?id=${itemRow.id}`)
+        favBtn.style.display = 'block'
+
+    } else if (type === 'FOLDER' && mode != 'TRASH') {
+
+        downloadBtn.style.display = 'none'
+        favBtn.style.display = 'none'
+    }
+
+    console.log(itemRow.id, type)
 
     // console.log(mode)
 
@@ -536,6 +646,11 @@ const rightClick = (e, isFavourite, mode, id, type) => {
         document.querySelector('#fav-menu').innerHTML = 'Add to favourite'
         document.querySelector('#star-outline').style.display = 'inline-block'
         document.querySelector('#star-fill').style.display = 'none'
+
+    }
+    
+    favBtn.onclick = () => {
+        addToFavourite(type, itemRow.id)
     }
 
     let xP = e.clientX / window.innerWidth * 100
@@ -562,9 +677,11 @@ const rightClick = (e, isFavourite, mode, id, type) => {
         refreshByMode(mode)
     }
 
-    let deleteBtn = document.querySelector('#menu-delete')
     deleteBtn.onclick = () => {
-        deleteRow(type, id)
+        deleteRow(type, itemRow.id)
+    }
+    restoreBtn.onclick = () => {
+        restoreRow(type, itemRow.id)
     }
 }
 
@@ -654,6 +771,47 @@ const uploadFiles = (files) => {
 
 
 
+// share pop up
+const shareBtn = document.querySelector('#menu-share')
+const shareContainer = document.querySelector('#share-modal-container')
+const shareCard = document.querySelector('#share-modal-card')
+const shareCloseBtn = document.querySelector('#share-close-btn')
+const shareInput = document.querySelector('#share-input')
+
+shareBtn.onclick = () => {
+    shareAction.showShareContainer()
+}
+shareContainer.onclick = () =>{
+    shareAction.hideShareContainer()
+}
+shareCard.onclick = (e) => {
+    e.stopPropagation()
+}
+shareCloseBtn.onclick = () => {
+    shareAction.hideShareContainer()
+}
+
+
+// share actions
+const shareAction = {
+
+    showShareContainer: () => {
+        shareContainer.classList.add('show')
+    },
+
+    hideShareContainer: () => {
+        shareContainer.classList.remove('show')
+    },
+
+    shareFile: () => {
+        console.log(RIGHT_CLICKED)
+    },
+}
+
+
+
+
+
 // new folder pop up
 const newFolder = document.querySelector('#new-folder-container')
 const createFolderBtn = document.querySelector('#create-folder-btn')
@@ -661,8 +819,11 @@ const newFolderInner = document.querySelector('#new-folder-card')
 const newFolderCloseBtn = document.querySelector('#new-folder-close-btn')
 const newFolderInput = document.querySelector('#new-folder-input')
 
-createFolderBtn.onclick = () => {
-    action.showNewFolderContainer()
+if (createFolderBtn) {
+
+    createFolderBtn.onclick = () => {
+        action.showNewFolderContainer()
+    }
 }
 newFolder.onclick = () => {
     action.hideNewFolderContainer()
@@ -751,13 +912,14 @@ const action = {
     },
 
     handleResult: (result, obj) => {
-        alert(result)
+        // alert(result)
         if (obj.success) {
 
             refreshAll()
         } else {
             let errorMssg = document.querySelector('#new-folder-error')
             errorMssg.innerHTML = obj.errors.name
+            console.log(obj.errors.name)
         }
     },
 }
