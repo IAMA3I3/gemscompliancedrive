@@ -356,8 +356,8 @@ previewBtn.onclick = () => {
 }
 
 const preview = () => {
-    // console.log(RIGHT_CLICKED.slug)
-    window.open(`preview.php?id=${RIGHT_CLICKED.slug}&type=${RIGHT_CLICKED.type}`, '_blank')
+    // console.log(RIGHT_CLICKED.itemRow.slug)
+    window.open(`preview.php?id=${RIGHT_CLICKED.itemRow.slug}&type=${RIGHT_CLICKED.type}`, '_blank')
 }
 
 
@@ -593,7 +593,11 @@ const menu = document.querySelector('#menu') //menu for right click
 const rightClick = (e, isFavourite, mode, itemRow, type) => {
     e.preventDefault()
 
-    RIGHT_CLICKED = {'id': itemRow.id, 'type': type, 'slug': itemRow.slug}
+    RIGHT_CLICKED = {
+        'itemRow': itemRow,
+        'name': type === 'FOLDER' ? itemRow.name : itemRow.file_name,
+        'type': type
+    }
 
     // console.log(RIGHT_CLICKED)
 
@@ -777,6 +781,8 @@ const shareContainer = document.querySelector('#share-modal-container')
 const shareCard = document.querySelector('#share-modal-card')
 const shareCloseBtn = document.querySelector('#share-close-btn')
 const shareInput = document.querySelector('#share-input')
+const shareFileName = document.querySelector('#share-file-name')
+const copyShareLinkBtn = document.querySelector('#copy-share-link-btn')
 
 shareBtn.onclick = () => {
     shareAction.showShareContainer()
@@ -790,13 +796,22 @@ shareCard.onclick = (e) => {
 shareCloseBtn.onclick = () => {
     shareAction.hideShareContainer()
 }
+copyShareLinkBtn.onclick = () => {
+    shareAction.copyShareLink()
+    showAlert()
+    shareInput.setSelectionRange(0, 0)
+}
 
 
 // share actions
 const shareAction = {
+    root_path: 'http://localhost/gemscompliancedrive/public/',
 
     showShareContainer: () => {
         shareContainer.classList.add('show')
+        shareFileName.innerHTML = RIGHT_CLICKED.name
+        document.querySelector(`#share-mode-${RIGHT_CLICKED.itemRow.share_mode}`).checked = true
+        shareInput.value = `${shareAction.root_path}preview.php?id=${RIGHT_CLICKED.itemRow.slug}`
     },
 
     hideShareContainer: () => {
@@ -805,6 +820,12 @@ const shareAction = {
 
     shareFile: () => {
         console.log(RIGHT_CLICKED)
+    },
+
+    copyShareLink: () => {
+        shareInput.select()
+        shareInput.setSelectionRange(0, 99999)
+        document.execCommand("copy")
     },
 }
 
