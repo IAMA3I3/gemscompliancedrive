@@ -3,15 +3,15 @@
 require_once './session.php';
 require './functions.php';
 
-if (!is_logged_in()) {
-    echo 'Please login to download';
-    die();
-}
+// if (!is_logged_in()) {
+//     echo 'Please login to download';
+//     die();
+// }
 
 $id = (int)$_GET['id'] ?? null;
-$user_id = (int)$_SESSION['MY_DRIVE_USER']['id'];
+$user_id = (int)$_SESSION['MY_DRIVE_USER']['id'] ?? 0;
 
-$query = "SELECT * FROM my_drive WHERE user_id = '$user_id' AND id = '$id' LIMIT 1";
+$query = "SELECT * FROM my_drive WHERE id = '$id' LIMIT 1"; // user_id = '$user_id' AND
 $row = query($query);
 
 if ($row) {

@@ -1,156 +1,49 @@
-} else if ($_POST['data_type'] == "get_files") {
+var LOGGED_IN = false
+var USERNAME = false
+var FOLDER_ID = 0
 
-$user_id = $_SESSION['MY_DRIVE_USER']['id'] ?? null;
-$mode = $_POST['mode'];
-$folder_id = $_POST['folder_id'] ?? 0;
 
-// get folder tabs
-$has_parent = true;
-$num = 0;
-$my_folder_id = $folder_id;
+var RIGHT_CLICKED = {}
 
-while ($has_parent && $num < 100) {
 
-    $query = "SELECT * FROM folders WHERE id = '$my_folder_id' LIMIT 1";
-    $row = query($query);
+// pop up images/videos
+var images = document.querySelectorAll('#img')
+var pop = document.querySelector('#popup')
+var popImage = document.querySelector('#popup img')
+var popVideo = document.querySelector('#popup video')
+var closeImgBtn = document.querySelector('#popup #close-img')
+var leftBtn = document.querySelector('#popup #left-btn')
+var rightBtn = document.querySelector('#popup #right-btn')
 
-    if ($row) {
-        $info['folder_tabs'][] = $row[0];
-        if ($row[0]['parent'] == 0) {
-            $has_parent = false;
-        } else {
-            $my_folder_id = $row[0]['parent'];
-        }
+// console.log(images)
+
+
+
+const isImage = ['gif', 'jpg', 'jpeg', 'png', 'jfif', 'jif', 'jfi']
+const isVideo = ['mpg', 'mp2', 'mpeg', 'mpe', 'mpv', 'mp4', 'mov']
+let displayImages = []
+let position = 0
+
+const assignSrc = (e) => {
+    console.log(e)
+    if (isImage.includes(e.split('.').pop().toLowerCase())) {
+        pop.classList.add('show')
+        popImage.style.display = "inline-block"
+        popVideo.style.display = "none"
+        popImage.src = 'includes/' + e
+    } else if (isVideo.includes(e.split('.').pop().toLowerCase())) {
+        pop.classList.add('show')
+        popImage.style.display = "none"
+        popVideo.style.display = "inline-block"
+        popVideo.src = 'includes/' + e
+    } else {
+        // console.log("Not valid")
+        pop.classList.add('show')
+        popImage.style.display = "inline-block"
+        popVideo.style.display = "none"
+        popImage.src = 'assets/q.png'
     }
-
-    $num++;
 }
-
-switch ($mode) {
-    case 'MYDRIVE':
-        $query_folder = "SELECT * FROM folders WHERE trash = 0 AND user_id = '$user_id' AND parent = '$folder_id' ORDER BY id DESC LIMIT 30";
-        $query = "SELECT * FROM my_drive WHERE trash = 0 AND user_id = '$user_id' AND folder_id = '$folder_id' ORDER BY id DESC LIMIT 30";
-        break;
-
-    case 'SHARED':
-        $query_folder = "SELECT * FROM folders WHERE share_mode = 1 AND trash = 0 AND user_id = '$user_id' ORDER BY id DESC LIMIT 30"; // AND parent = '$folder_id'
-        $query = "SELECT * FROM my_drive WHERE share_mode = 1 AND trash = 0 AND user_id = '$user_id' AND folder_id = '$folder_id' ORDER BY id DESC LIMIT 30";
-        break;
-
-    case 'FAVOURITES':
-        $query = "SELECT * FROM my_drive WHERE trash = 0 AND favourite = 1 AND user_id = '$user_id' ORDER BY id DESC LIMIT 30";
-        break;
-
-    case 'RECENT':
-        $query = "SELECT * FROM my_drive WHERE trash = 0 AND user_id = '$user_id' ORDER BY updated_at DESC LIMIT 30";
-        break;
-
-    case 'TRASH':
-        $query_folder = "SELECT * FROM folders WHERE trash = 1 AND user_id = '$user_id' ORDER BY id DESC LIMIT 30";  // AND parent = '$folder_id'
-        $query = "SELECT * FROM my_drive WHERE trash = 1 AND user_id = '$user_id' ORDER BY id DESC LIMIT 30";
-        break;
-
-    default:
-        $query = "SELECT * FROM my_drive WHERE trash = 0 AND user_id = '$user_id' AND folder_id = '$folder_id' ORDER BY id DESC LIMIT 30";
-        break;
-}
-
-if (!empty($query_folder)) {
-    $rows_folders = query($query_folder);
-}
-
-if (empty($rows_folders)) {
-    $rows_folders = [];
-}
-
-$rows = query($query);
-
-if ($rows) {
-    foreach ($rows as $key => $row) {
-        $rows[$key]['icon'] = $icons[$row['file_type']] ?? '<i class="fa-regular fa-circle-question"></i>';
-    }
-    $info['rows'] = $rows;
-    $info["success"] = true;
-}
-
-if ($rows_folders) {
-    foreach ($rows_folders as $key => $row_folder) {
-        $rows_folders[$key]['icon'] = '<i class="fa-regular fa-folder"></i>';
-    }
-    $info['rows_folders'] = $rows_folders;
-    $info["success"] = true;
-}
-} else if ($_POST['data_type'] == "user_signup") {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // var LOGGED_IN = false
-// var USERNAME = false
-// var FOLDER_ID = 0
-
-
-// var RIGHT_CLICKED = {}
-
-
-// // pop up images/videos
-// var images = document.querySelectorAll('#img')
-// var pop = document.querySelector('#popup')
-// var popImage = document.querySelector('#popup img')
-// var popVideo = document.querySelector('#popup video')
-// var closeImgBtn = document.querySelector('#popup #close-img')
-// var leftBtn = document.querySelector('#popup #left-btn')
-// var rightBtn = document.querySelector('#popup #right-btn')
-
-// // console.log(images)
-
-
-
-// const isImage = ['gif', 'jpg', 'jpeg', 'png', 'jfif', 'jif', 'jfi']
-// const isVideo = ['mpg', 'mp2', 'mpeg', 'mpe', 'mpv', 'mp4', 'mov']
-// let displayImages = []
-// let position = 0
-
-// const assignSrc = (e) => {
-//     console.log(e)
-//     if (isImage.includes(e.split('.').pop().toLowerCase())) {
-//         pop.classList.add('show')
-//         popImage.style.display = "inline-block"
-//         popVideo.style.display = "none"
-//         popImage.src = 'includes/' + e
-//     } else if (isVideo.includes(e.split('.').pop().toLowerCase())) {
-//         pop.classList.add('show')
-//         popImage.style.display = "none"
-//         popVideo.style.display = "inline-block"
-//         popVideo.src = 'includes/' + e
-//     } else {
-//         // console.log("Not valid")
-//         pop.classList.add('show')
-//         popImage.style.display = "inline-block"
-//         popVideo.style.display = "none"
-//         popImage.src = 'assets/q.png'
-//     }
-// }
 
 // images.forEach((image, index) => {
 //     image.onclick = () => {
@@ -162,9 +55,9 @@ if ($rows_folders) {
 
 
 
-// closeImgBtn.onclick = () => {
-//     pop.classList.remove('show')
-// }
+closeImgBtn.onclick = () => {
+    pop.classList.remove('show')
+}
 
 
 
@@ -249,9 +142,9 @@ const refresh = (ref, MODE) => {
                 }
 
                 // check if user is logged in
-                LOGGED_IN = obj.LOGGED_IN
-                if (!LOGGED_IN)
-                    window.location.href = 'login.php'
+                // LOGGED_IN = obj.LOGGED_IN
+                // if (!LOGGED_IN && obj.data_type !== 'folder_preview')
+                //     window.location.href = 'login.php'
 
                 // update folder tabs
                 let folderTabs = document.querySelector('#folder-tabs')
@@ -921,181 +814,11 @@ const uploadFiles = (files) => {
 
 
 
-// share pop up
-const shareBtn = document.querySelector('#menu-share')
-const shareContainer = document.querySelector('#share-modal-container')
-const shareCard = document.querySelector('#share-modal-card')
-const shareCloseBtn = document.querySelector('#share-close-btn')
-const shareInput = document.querySelector('#share-input')
-const shareFileName = document.querySelector('#share-file-name')
-const copyShareLinkBtn = document.querySelector('#copy-share-link-btn')
-
-shareBtn.onclick = () => {
-    shareAction.showShareContainer()
-}
-shareContainer.onclick = () => {
-    shareAction.hideShareContainer()
-}
-shareCard.onclick = (e) => {
-    e.stopPropagation()
-}
-shareCloseBtn.onclick = () => {
-    shareAction.hideShareContainer()
-}
-copyShareLinkBtn.onclick = () => {
-    shareAction.copyShareLink()
-    showAlert()
-    shareInput.setSelectionRange(0, 0)
-}
-
-
-// share actions
-const shareAction = {
-    root_path: 'http://localhost/gemscompliancedrive/public/',
-
-    showShareContainer: () => {
-        shareContainer.classList.add('show')
-        shareFileName.innerHTML = RIGHT_CLICKED.name
-        document.querySelector(`#share-mode-${RIGHT_CLICKED.itemRow.share_mode}`).checked = true
-        if (RIGHT_CLICKED.type === 'FILE') {
-            shareInput.value = `${shareAction.root_path}preview.php?id=${RIGHT_CLICKED.itemRow.slug}&type=${RIGHT_CLICKED.type}`
-        } else if (RIGHT_CLICKED.type === 'FOLDER') {
-            shareInput.value = `${shareAction.root_path}folder.php?id=${RIGHT_CLICKED.itemRow.slug}&type=${RIGHT_CLICKED.type}`
-        } else {
-            shareInput.value = ''
-        }
-    },
-
-    hideShareContainer: () => {
-        shareContainer.classList.remove('show')
-    },
-
-    shareFile: () => {
-        console.log(RIGHT_CLICKED)
-    },
-
-    copyShareLink: () => {
-        shareInput.select()
-        shareInput.setSelectionRange(0, 99999)
-        document.execCommand("copy")
-    },
-}
 
 
 
 
 
-// new folder pop up
-const newFolder = document.querySelector('#new-folder-container')
-const createFolderBtn = document.querySelector('#create-folder-btn')
-const newFolderInner = document.querySelector('#new-folder-card')
-const newFolderCloseBtn = document.querySelector('#new-folder-close-btn')
-const newFolderInput = document.querySelector('#new-folder-input')
-
-if (createFolderBtn) {
-
-    createFolderBtn.onclick = () => {
-        action.showNewFolderContainer()
-    }
-}
-newFolder.onclick = () => {
-    action.hideNewFolderContainer()
-}
-newFolderInner.onclick = (e) => {
-    e.stopPropagation()
-}
-newFolderCloseBtn.onclick = () => {
-    action.hideNewFolderContainer()
-}
-
-
-// new folder actions
-const action = {
-
-    uploading: false,
-    cancelled: false,
-
-    createNewFolder: (e) => {
-
-        let inputValue = newFolderInput.value.trim()
-        if (inputValue != '') {
-            action.hideNewFolderContainer()
-        }
-
-        let obj = {}
-        obj.data_type = 'new_folder'
-        obj.name = inputValue
-        obj.folder_id = FOLDER_ID
-
-        action.send(obj)
-    },
-
-    showNewFolderContainer: () => {
-        document.querySelector('#new-folder-error').innerHTML = ''
-        newFolderInput.value = ''
-        newFolder.classList.add('show')
-        newFolderInput.focus()
-    },
-
-    hideNewFolderContainer: () => {
-        newFolder.classList.remove('show')
-    },
-
-    send: (obj) => {
-
-        if (action.uploading) {
-            alert("Folder upload in progress")
-            return
-        }
-
-        action.uploading = true
-        action.cancelled = false
-
-        let myForm = new FormData()
-
-        for (key in obj) {
-            myForm.append(key, obj[key])
-        }
-
-        let xhr = new XMLHttpRequest()
-
-        xhr.onerror = () => console.log('an error occured')
-
-        xhr.onreadystatechange = () => {
-
-            if (xhr.readyState == 4) {
-
-                if (xhr.status == 200) {
-
-                    let obj = JSON.parse(xhr.responseText)
-                    action.handleResult(xhr.responseText, obj)
-
-                } else {
-                    console.log(xhr.responseText)
-                }
-
-                action.uploading = false
-            }
-        }
-
-        xhr.open('post', 'includes/api.php', true)
-        xhr.send(myForm)
-
-        refreshAll()
-    },
-
-    handleResult: (result, obj) => {
-        // alert(result)
-        if (obj.success) {
-
-            refreshAll()
-        } else {
-            let errorMssg = document.querySelector('#new-folder-error')
-            errorMssg.innerHTML = obj.errors.name
-            console.log(obj.errors.name)
-        }
-    },
-}
 
 
 

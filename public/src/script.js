@@ -25,6 +25,7 @@ let displayImages = []
 let position = 0
 
 const assignSrc = (e) => {
+    console.log(e)
     if (isImage.includes(e.split('.').pop().toLowerCase())) {
         pop.classList.add('show')
         popImage.style.display = "inline-block"
@@ -122,7 +123,7 @@ const refresh = (ref, MODE) => {
 
                 // check if user is logged in
                 LOGGED_IN = obj.LOGGED_IN
-                if (!LOGGED_IN)
+                if (!LOGGED_IN && obj.data_type !== 'folder_preview')
                     window.location.href = 'login.php'
 
                 // update folder tabs
@@ -200,8 +201,9 @@ const refresh = (ref, MODE) => {
 
                             folderContainer.ondblclick = (e) => {
                                 e.preventDefault()
-                                // console.log(obj.rows_folders[i].id)
-                                changeFolder(obj.rows_folders[i].id)
+                                // console.log(obj.rows_folders[i], 'dbclick')
+                                // changeFolder(obj.rows_folders[i].id)
+                                folderPreview(obj.rows_folders[i])
                             }
 
                             if (myDriveDisplay) {
@@ -216,6 +218,7 @@ const refresh = (ref, MODE) => {
                         displayImages = []
 
                         for (let i = 0; i < obj.rows.length; i++) {
+                            // console.log(obj.rows[i].folder_id)
 
                             let container = document.createElement('div')
                             container.className = " w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300"
@@ -268,10 +271,10 @@ const refresh = (ref, MODE) => {
 
                             // console.log(MODE == "MYDRIVE")
 
-                            if (MODE == "MYDRIVE" && FOLDER_ID == obj.rows[i].folder_id) {
+
+                            if (MODE == "MYDRIVE" && obj.rows[i].folder_id == 0) {
                                 displayImages.push(obj.rows[i].file_path)
                             }
-
                             if (MODE != "MYDRIVE") {
                                 displayImages.push(obj.rows[i].file_path)
                             }
@@ -342,8 +345,8 @@ const refreshAll = () => {
     refresh('shared', 'SHARED')
 }
 
-refreshAll()
-// refresh('my-drive', 'MYDRIVE')
+// refreshAll()
+refresh('my-drive', 'MYDRIVE')
 
 
 
@@ -358,6 +361,11 @@ previewBtn.onclick = () => {
 const preview = () => {
     // console.log(RIGHT_CLICKED.itemRow.slug)
     window.open(`preview.php?id=${RIGHT_CLICKED.itemRow.slug}&type=${RIGHT_CLICKED.type}`, '_blank')
+}
+
+const folderPreview = (folder) => {
+    // console.log(folder)
+    window.open(`folder.php?id=${folder.slug}&type=FOLDER`, `_self`)
 }
 
 
@@ -516,20 +524,20 @@ if (dropZone) {
 
     dropZone.ondrop = (e) => {
         e.preventDefault()
-    
+
         dropZone.classList.remove('highlight')
         // console.log(e.dataTransfer.files)
         uploadFiles(e.dataTransfer.files)
     }
-    
+
     dropZone.ondragover = (e) => {
         e.preventDefault()
-    
+
         dropZone.classList.add('highlight')
     }
-    
+
     dropZone.ondragleave = () => {
-    
+
         dropZone.classList.remove('highlight')
     }
 }
@@ -606,6 +614,7 @@ const rightClick = (e, isFavourite, mode, itemRow, type) => {
     let downloadBtn = document.querySelector('#menu-download')
     let delBtnText = document.querySelector('#menu-delete-text')
     let deleteBtn = document.querySelector('#menu-delete')
+    let previewBtn = document.querySelector('#menu-preview')
 
     delBtnText.innerHTML = "Delete"
 
@@ -631,11 +640,13 @@ const rightClick = (e, isFavourite, mode, itemRow, type) => {
         downloadBtn.style.display = 'block'
         downloadBtn.setAttribute('href', `includes/download.php?id=${itemRow.id}`)
         favBtn.style.display = 'block'
+        previewBtn.style.display = 'block'
 
     } else if (type === 'FOLDER' && mode != 'TRASH') {
 
         downloadBtn.style.display = 'none'
         favBtn.style.display = 'none'
+        previewBtn.style.display = 'none'
     }
 
     console.log(itemRow.id, type)
@@ -652,7 +663,7 @@ const rightClick = (e, isFavourite, mode, itemRow, type) => {
         document.querySelector('#star-fill').style.display = 'none'
 
     }
-    
+
     favBtn.onclick = () => {
         addToFavourite(type, itemRow.id)
     }
@@ -775,175 +786,13 @@ const uploadFiles = (files) => {
 
 
 
-// share pop up
-const shareBtn = document.querySelector('#menu-share')
-const shareContainer = document.querySelector('#share-modal-container')
-const shareCard = document.querySelector('#share-modal-card')
-const shareCloseBtn = document.querySelector('#share-close-btn')
-const shareInput = document.querySelector('#share-input')
-const shareFileName = document.querySelector('#share-file-name')
-const copyShareLinkBtn = document.querySelector('#copy-share-link-btn')
-
-shareBtn.onclick = () => {
-    shareAction.showShareContainer()
-}
-shareContainer.onclick = () =>{
-    shareAction.hideShareContainer()
-}
-shareCard.onclick = (e) => {
-    e.stopPropagation()
-}
-shareCloseBtn.onclick = () => {
-    shareAction.hideShareContainer()
-}
-copyShareLinkBtn.onclick = () => {
-    shareAction.copyShareLink()
-    showAlert()
-    shareInput.setSelectionRange(0, 0)
-}
-
-
-// share actions
-const shareAction = {
-    root_path: 'http://localhost/gemscompliancedrive/public/',
-
-    showShareContainer: () => {
-        shareContainer.classList.add('show')
-        shareFileName.innerHTML = RIGHT_CLICKED.name
-        document.querySelector(`#share-mode-${RIGHT_CLICKED.itemRow.share_mode}`).checked = true
-        shareInput.value = `${shareAction.root_path}preview.php?id=${RIGHT_CLICKED.itemRow.slug}`
-    },
-
-    hideShareContainer: () => {
-        shareContainer.classList.remove('show')
-    },
-
-    shareFile: () => {
-        console.log(RIGHT_CLICKED)
-    },
-
-    copyShareLink: () => {
-        shareInput.select()
-        shareInput.setSelectionRange(0, 99999)
-        document.execCommand("copy")
-    },
-}
 
 
 
 
 
-// new folder pop up
-const newFolder = document.querySelector('#new-folder-container')
-const createFolderBtn = document.querySelector('#create-folder-btn')
-const newFolderInner = document.querySelector('#new-folder-card')
-const newFolderCloseBtn = document.querySelector('#new-folder-close-btn')
-const newFolderInput = document.querySelector('#new-folder-input')
-
-if (createFolderBtn) {
-
-    createFolderBtn.onclick = () => {
-        action.showNewFolderContainer()
-    }
-}
-newFolder.onclick = () => {
-    action.hideNewFolderContainer()
-}
-newFolderInner.onclick = (e) => {
-    e.stopPropagation()
-}
-newFolderCloseBtn.onclick = () => {
-    action.hideNewFolderContainer()
-}
 
 
-// new folder actions
-const action = {
-
-    uploading: false,
-    cancelled: false,
-
-    createNewFolder: (e) => {
-
-        let inputValue = newFolderInput.value.trim()
-        if (inputValue != '') {
-            action.hideNewFolderContainer()
-        }
-
-        let obj = {}
-        obj.data_type = 'new_folder'
-        obj.name = inputValue
-        obj.folder_id = FOLDER_ID
-
-        action.send(obj)
-    },
-
-    showNewFolderContainer: () => {
-        document.querySelector('#new-folder-error').innerHTML = ''
-        newFolderInput.value = ''
-        newFolder.classList.add('show')
-        newFolderInput.focus()
-    },
-
-    hideNewFolderContainer: () => {
-        newFolder.classList.remove('show')
-    },
-
-    send: (obj) => {
-
-        if (action.uploading) {
-            alert("Folder upload in progress")
-            return
-        }
-
-        action.uploading = true
-        action.cancelled = false
-
-        let myForm = new FormData()
-
-        for (key in obj) {
-            myForm.append(key, obj[key])
-        }
-
-        let xhr = new XMLHttpRequest()
-
-        xhr.onerror = () => console.log('an error occured')
-
-        xhr.onreadystatechange = () => {
-
-            if (xhr.readyState == 4) {
-
-                if (xhr.status == 200) {
-
-                    let obj = JSON.parse(xhr.responseText)
-                    action.handleResult(xhr.responseText, obj)
-
-                } else {
-                    console.log(xhr.responseText)
-                }
-
-                action.uploading = false
-            }
-        }
-
-        xhr.open('post', 'includes/api.php', true)
-        xhr.send(myForm)
-
-        refreshAll()
-    },
-
-    handleResult: (result, obj) => {
-        // alert(result)
-        if (obj.success) {
-
-            refreshAll()
-        } else {
-            let errorMssg = document.querySelector('#new-folder-error')
-            errorMssg.innerHTML = obj.errors.name
-            console.log(obj.errors.name)
-        }
-    },
-}
 
 
 

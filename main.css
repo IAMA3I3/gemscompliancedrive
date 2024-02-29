@@ -68,7 +68,7 @@
       @apply flex
     }
     .pop.show {
-      @apply block
+      @apply hidden md:block
     }
     #drop-zone {
       @apply bg-black/10 hover:bg-black/15

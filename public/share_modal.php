@@ -8,12 +8,37 @@
                 <input class=" radio" type="radio" value="0" name="share" id="share-mode-0"> <span>Stop Sharing</span>
             </label>
             <label>
-                <input class=" radio" type="radio" value="1" name="share" id="share-mode-1"> <span>Share to Specific People</span>
-            </label>
-            <label>
                 <input class=" radio" type="radio" value="2" name="share" id="share-mode-2"> <span>Share to Public</span>
             </label>
+            <label>
+                <input class=" radio" type="radio" value="1" name="share" id="share-mode-1"> <span>Share to Specific Users</span>
+            </label>
         </div>
+        <!--  -->
+        <div class=" rounded-md border-gray-400 border-2 px-4 py-2">
+            <div class=" text-sm text-gray-600 font-semibold text-center">Add emails to give access to specific users</div>
+            <div class="">
+                <div class=" flex items-center rounded-full border-gray-500 border-2">
+                    <input class=" flex-1 border-none" type="email" name="email_share" id="email-share-input" placeholder="Enter email address" >
+                    <div class=" px-4 cursor-pointer text-xl font-bold hover:text-blue-700 active:text-blue-900 active:scale-95 flex items-center" title="Add" id="email-share-add">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                </div>
+                <div class="pop text-sm text-red-500 font-semibold tracking-wide text-center" id="email-share-error">error</div>
+                <div class=" max-h-20 overflow-y-auto scrollbar mt-1" id="email-share-list">
+                    <!--  -->
+                    <!-- <div class=" flex items-center py-1 px-3 bg-slate-700/10 rounded mx-2 my-1">
+                        <div class=" flex-1 overflow-hidden truncate">test@gmail.com</div>
+                        <div class=" flex items-center px-2 hover:text-red-500 active:text-red-700 active:scale-95 cursor-pointer" title="Remove" onclick="share.remove()">
+                            <i class="fa-solid fa-xmark"></i>
+                        </div>
+                        <input type="hidden" name="" id="">
+                    </div> -->
+                    <!--  -->
+                </div>
+            </div>
+        </div>
+        <!--  -->
         <div class=" my-2">
             <label class=" text-sm font-semibold text-gray-500" for="share-input">File Link</label>
             <div class=" relative">
@@ -24,6 +49,6 @@
                 </button>
             </div>
         </div>
-        <button class=" bg-blue-500 text-white hover:bg-blue-400 mt-4" onclick="shareAction.shareFile(this)">Save</button>
+        <button class=" bg-blue-500 text-white hover:bg-blue-400 mt-4 w-full text-center" onclick="shareAction.shareFile(this)">Save Share Mode</button>
     </div>
 </div>

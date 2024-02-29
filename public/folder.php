@@ -27,7 +27,7 @@ include './components/header.php';
         <!-- left bar -->
         <div class=" w-[20%] h-full border-r border-gray-400 pr-1 md:pr-2">
             <!--  -->
-            <div class=" h-[65%] w-full overflow-x-hidden overflow-y-auto scrollbar *:truncate *:my-1 first:*:mb-8">
+            <div class="h-full md:h-[65%] w-full overflow-x-hidden overflow-y-auto scrollbar *:truncate *:my-1 first:*:mb-8">
                 <!--  -->
                 <div class=" cursor-pointer py-2 px-6 rounded-full bg-blue-500 text-white hover:bg-blue-400 active:scale-95 active:text-white shadow-lg" id="create-folder-btn">
                     <i class="fa-solid fa-folder-plus w-8"></i>
@@ -62,10 +62,10 @@ include './components/header.php';
             </div>
             <!--  -->
             <!-- upload -->
-            <div class=" inline-block h-[35%] w-full">
+            <div class=" hidden md:inline-block h-[35%]">
                 <label class=" rounded-xl h-full flex justify-center items-center flex-col text-center p-4 border cursor-pointer" id="drop-zone">
                     <i class="fa-solid fa-cloud-arrow-up text-2xl mb-2"></i>
-                    <span class=" hidden md:inline">Drag and drop files here or click to upload</span>
+                    <span>Drag and drop files here or click to upload</span>
                     <input onchange="uploadFiles(this.files)" type="file" class=" hidden" name="" id="upload-input" multiple>
                     <!-- progress bar -->
                     <div class=" w-full mt-2" id="prog-container">
@@ -174,5 +174,6 @@ include './components/header.php';
 include './components/footer.php';
 ?>
 
-<script src="src/script.js"></script>
+<!-- <script src="src/script.js"></script> -->
+<script src="src/folder.js"></script>
 <script src="src/combined.js"></script>

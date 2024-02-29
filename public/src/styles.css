@@ -621,7 +621,13 @@ textarea {
 }
 
 .pop.show {
-  display: block;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .pop.show {
+    display: block;
+  }
 }
 
 #drop-zone {
@@ -866,8 +872,8 @@ textarea {
   left: 1rem;
 }
 
-.right-1 {
-  right: 0.25rem;
+.right-2 {
+  right: 0.5rem;
 }
 
 .right-4 {
@@ -876,10 +882,6 @@ textarea {
 
 .top-0 {
   top: 0px;
-}
-
-.top-1 {
-  top: 0.25rem;
 }
 
 .top-2 {
@@ -892,10 +894,6 @@ textarea {
 
 .top-\[50\%\] {
   top: 50%;
-}
-
-.right-2 {
-  right: 0.5rem;
 }
 
 .isolate {
@@ -962,6 +960,11 @@ textarea {
   margin: auto;
 }
 
+.mx-2 {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
 .my-1 {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
@@ -976,6 +979,10 @@ textarea {
   margin-bottom: 0.5rem;
 }
 
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
 .mt-2 {
   margin-top: 0.5rem;
 }
@@ -986,10 +993,6 @@ textarea {
 
 .mt-4 {
   margin-top: 1rem;
-}
-
-.mt-\[-50\%\] {
-  margin-top: -50%;
 }
 
 .box-border {
@@ -1111,6 +1114,10 @@ textarea {
   height: 35%;
 }
 
+.h-\[65\%\] {
+  height: 65%;
+}
+
 .h-\[75vh\] {
   height: 75vh;
 }
@@ -1125,6 +1132,10 @@ textarea {
 
 .h-screen {
   height: 100vh;
+}
+
+.max-h-20 {
+  max-height: 5rem;
 }
 
 .w-32 {
@@ -2195,6 +2206,11 @@ textarea {
   border-color: rgb(156 163 175 / var(--tw-border-opacity));
 }
 
+.border-gray-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(107 114 128 / var(--tw-border-opacity));
+}
+
 .border-green-900 {
   --tw-border-opacity: 1;
   border-color: rgb(20 83 45 / var(--tw-border-opacity));
@@ -2265,6 +2281,10 @@ textarea {
 .bg-slate-600 {
   --tw-bg-opacity: 1;
   background-color: rgb(71 85 105 / var(--tw-bg-opacity));
+}
+
+.bg-slate-700\/10 {
+  background-color: rgb(51 65 85 / 0.1);
 }
 
 .bg-white {
@@ -2407,6 +2427,11 @@ textarea {
   padding-right: 0.5rem;
 }
 
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -2440,28 +2465,16 @@ textarea {
   padding-right: 0.25rem;
 }
 
+.pr-28 {
+  padding-right: 7rem;
+}
+
 .pt-0 {
   padding-top: 0px;
 }
 
 .pt-20 {
   padding-top: 5rem;
-}
-
-.pr-10 {
-  padding-right: 2.5rem;
-}
-
-.pr-20 {
-  padding-right: 5rem;
-}
-
-.pr-24 {
-  padding-right: 6rem;
-}
-
-.pr-28 {
-  padding-right: 7rem;
 }
 
 .text-left {
@@ -2542,6 +2555,11 @@ textarea {
 .text-sm {
   font-size: 0.875rem;
   line-height: 1.25rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
 }
 
 .text-xs {
@@ -2648,9 +2666,19 @@ textarea {
   color: rgb(107 114 128 / var(--tw-text-opacity));
 }
 
+.text-gray-600 {
+  --tw-text-opacity: 1;
+  color: rgb(75 85 99 / var(--tw-text-opacity));
+}
+
 .text-green-900 {
   --tw-text-opacity: 1;
   color: rgb(20 83 45 / var(--tw-text-opacity));
+}
+
+.text-red-500 {
+  --tw-text-opacity: 1;
+  color: rgb(239 68 68 / var(--tw-text-opacity));
 }
 
 .text-red-600 {
@@ -2716,10 +2744,6 @@ textarea {
 .subpixel-antialiased {
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
-}
-
-.opacity-10 {
-  opacity: 0.1;
 }
 
 .bg-blend-normal {
@@ -3165,6 +3189,11 @@ textarea {
   color: rgb(37 99 235 / var(--tw-text-opacity));
 }
 
+.hover\:text-blue-700:hover {
+  --tw-text-opacity: 1;
+  color: rgb(29 78 216 / var(--tw-text-opacity));
+}
+
 .hover\:text-red-500:hover {
   --tw-text-opacity: 1;
   color: rgb(239 68 68 / var(--tw-text-opacity));
@@ -3223,9 +3252,19 @@ textarea {
   color: rgb(30 64 175 / var(--tw-text-opacity));
 }
 
+.active\:text-blue-900:active {
+  --tw-text-opacity: 1;
+  color: rgb(30 58 138 / var(--tw-text-opacity));
+}
+
 .active\:text-red-500:active {
   --tw-text-opacity: 1;
   color: rgb(239 68 68 / var(--tw-text-opacity));
+}
+
+.active\:text-red-700:active {
+  --tw-text-opacity: 1;
+  color: rgb(185 28 28 / var(--tw-text-opacity));
 }
 
 .active\:text-white:active {
@@ -3245,6 +3284,10 @@ textarea {
 }
 
 @media (min-width: 640px) {
+  .sm\:flex {
+    display: flex;
+  }
+
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -3257,6 +3300,14 @@ textarea {
 @media (min-width: 768px) {
   .md\:inline-block {
     display: inline-block;
+  }
+
+  .md\:inline {
+    display: inline;
+  }
+
+  .md\:flex {
+    display: flex;
   }
 
   .md\:h-10 {
