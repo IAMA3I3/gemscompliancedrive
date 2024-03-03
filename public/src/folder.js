@@ -142,9 +142,21 @@ const refresh = (ref, MODE) => {
                 }
 
                 // check if user is logged in
-                // LOGGED_IN = obj.LOGGED_IN
+                LOGGED_IN = obj.LOGGED_IN
                 // if (!LOGGED_IN && obj.data_type !== 'folder_preview')
                 //     window.location.href = 'login.php'
+
+                // console.log(LOGGED_IN)
+                if (!LOGGED_IN) {
+                    document.querySelector('#drop-zone').style.display = 'none'
+                    document.querySelector('#logout-btn').innerHTML = `
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Login</span>
+                    `
+                    document.querySelector('#logout-btn').onclick = () => {
+                        window.location.href = 'login.php'
+                    }
+                }
 
                 // update folder tabs
                 let folderTabs = document.querySelector('#folder-tabs')
@@ -829,6 +841,9 @@ const logoutCloseBtn = document.querySelector('#logout-close-btn')
 const logoutBtn = document.querySelector('#logout-btn')
 
 logoutBtn.onclick = () => {
+    if (!LOGGED_IN) {
+        return
+    }
     logoutContainer.classList.add('show')
 }
 logoutContainer.onclick = () => {

@@ -21,12 +21,14 @@ shareBtn.onclick = () => {
 }
 shareContainer.onclick = () => {
     shareAction.hideShareContainer()
+    document.querySelector('#email-share-error').classList.remove('show')
 }
 shareCard.onclick = (e) => {
     e.stopPropagation()
 }
 shareCloseBtn.onclick = () => {
     shareAction.hideShareContainer()
+    document.querySelector('#email-share-error').classList.remove('show')
 }
 copyShareLinkBtn.onclick = () => {
     shareAction.copyShareLink()
@@ -108,6 +110,9 @@ const newFolderInput = document.querySelector('#new-folder-input')
 if (createFolderBtn) {
 
     createFolderBtn.onclick = () => {
+        if (!LOGGED_IN) {
+            return
+        }
         action.showNewFolderContainer()
     }
 }

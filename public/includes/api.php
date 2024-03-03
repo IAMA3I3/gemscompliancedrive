@@ -76,8 +76,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
                 break;
 
             case 'SHARED':
-                $query_folder = "SELECT * FROM folders WHERE share_mode = 2 AND trash = 0 ORDER BY id DESC"; // AND parent = '$folder_id'
-                $query = "SELECT * FROM my_drive WHERE share_mode = 2 AND trash = 0 AND folder_id = '$folder_id' ORDER BY id DESC";
+                if ($user_id && $user_id > 0) {
+
+                    $query_folder = "SELECT * FROM folders WHERE share_mode = 2 AND trash = 0 ORDER BY id DESC"; // AND parent = '$folder_id'
+                    $query = "SELECT * FROM my_drive WHERE share_mode = 2 AND trash = 0 AND folder_id = '$folder_id' ORDER BY id DESC";
+                } else {
+                    $query_folder = "SELECT * FROM folders WHERE share_mode = 2 AND trash = 0 AND user_id = '$user_id' ORDER BY id DESC"; // AND parent = '$folder_id'
+                    $query = "SELECT * FROM my_drive WHERE share_mode = 2 AND trash = 0 AND folder_id = '$folder_id' AND user_id = '$user_id' ORDER BY id DESC";
+                }
                 break;
 
             case 'FAVOURITES':
@@ -350,16 +356,19 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
 
         $current_folder = query_row($query_current_folder);
 
+        $current_folder_id = $current_folder['id'] ?? 0;
+
+
         $parent_id = $current_folder['parent'];
         $query_parent = "SELECT * FROM folders WHERE id = '$parent_id' LIMIT 1";
         $parent_folder = query_row($query_parent);
-
-        $count = 0;
-        $has_parent_share_mode = true;
-
-        while ($has_parent_share_mode && $count < 100) {
-
-            $count++;
+        $to_access = null;
+        if ($parent_folder) {
+            $query_access = "SELECT * FROM folders WHERE id = '$parent_id'";
+            $access_folder = query_row($query_access);
+            if ($access_folder) {
+                $to_access = $access_folder['id'];
+            }
         }
 
         switch ($current_folder['share_mode']) {
@@ -367,6 +376,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
                 // private file
                 if ($user_id == 0 || $current_folder['user_id'] !== $user_id) {
                     $current_folder['id'] = -1;
+                    if ($parent_folder) {
+                        if ($parent_folder['share_mode'] != 0 || $parent_folder['id'] ==  $to_access) {
+                            $current_folder['id'] = query_row($query_current_folder)['id'];
+                        }
+                    }
                     // $info["success"] = false;
                 }
                 break;
@@ -417,8 +431,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
                 break;
 
             case 'SHARED':
-                $query_folder = "SELECT * FROM folders WHERE share_mode = 2 AND trash = 0 ORDER BY id DESC"; // AND parent = '$folder_id'
-                $query = "SELECT * FROM my_drive WHERE share_mode = 2 AND trash = 0 ORDER BY id DESC";
+                if ($user_id && $user_id > 0) {
+
+                    $query_folder = "SELECT * FROM folders WHERE share_mode = 2 AND trash = 0 ORDER BY id DESC"; // AND parent = '$folder_id'
+                    $query = "SELECT * FROM my_drive WHERE share_mode = 2 AND trash = 0 ORDER BY id DESC";
+                } else {
+                    $query_folder = "SELECT * FROM folders WHERE share_mode = 2 AND trash = 0 AND user_id = '$user_id' ORDER BY id DESC"; // AND parent = '$folder_id'
+                    $query = "SELECT * FROM my_drive WHERE share_mode = 2 AND trash = 0 AND user_id = '$user_id' ORDER BY id DESC";
+                }
                 break;
 
             case 'FAVOURITES':
