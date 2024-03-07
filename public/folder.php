@@ -20,6 +20,14 @@ include './components/header.php';
     </div>
 </div>
 
+<!-- info alert -->
+<div class=" alert absolute z-10 w-full top-2 flex justify-center" id="info-alert">
+    <div class=" bg-yellow-500/50 text-yellow-900 border-2 border-yellow-900 shadow-xl py-2 px-5 rounded-full">
+        <i class="fa-solid fa-info"></i>
+        <span id="info-text">...</span>
+    </div>
+</div>
+
 <!-- main -->
 <div class=" flex-1 p-4">
     <!-- card -->
@@ -106,14 +114,14 @@ include './components/header.php';
         <i class=" w-8 fa-solid fa-cloud-arrow-down"></i>
         <span>Download</span>
     </a>
-    <div class=" hide-from-trash">
+    <!-- <div class=" hide-from-trash">
         <i class=" w-8 fa-regular fa-pen-to-square"></i>
         <span>Edit</span>
-    </div>
-    <div class=" hide-from-trash">
+    </div> -->
+    <!-- <div class=" hide-from-trash">
         <i class=" w-8 fa-regular fa-folder-open"></i>
         <span>Move</span>
-    </div>
+    </div> -->
     <div class="" id="menu-delete">
         <i class=" w-8 fa-regular fa-trash-can"></i>
         <span id="menu-delete-text">Delete</span>

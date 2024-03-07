@@ -8,8 +8,11 @@ require './functions.php';
 //     die();
 // }
 
-$id = (int)$_GET['id'] ?? null;
-$user_id = (int)$_SESSION['MY_DRIVE_USER']['id'] ?? 0;
+$id = $_GET['id'] ?? null;
+$user_id = $_SESSION['MY_DRIVE_USER']['id'] ?? 0;
+
+$id = (int)$id;
+$user_id = (int)$user_id;
 
 $query = "SELECT * FROM my_drive WHERE id = '$id' LIMIT 1"; // user_id = '$user_id' AND
 $row = query($query);

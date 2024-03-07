@@ -59,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
     } else if ($_POST['data_type'] == "get_files") {
 
         $user_id = $_SESSION['MY_DRIVE_USER']['id'] ?? null;
+        $user_email = $_SESSION['MY_DRIVE_USER']['email'] ?? null;
         $mode = $_POST['mode'];
         // $folder_id = $_POST['folder_id'] ?? 0;
         $folder_id = 0;
@@ -79,10 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
                 if ($user_id && $user_id > 0) {
 
                     $query_folder = "SELECT * FROM folders WHERE share_mode = 2 AND trash = 0 ORDER BY id DESC"; // AND parent = '$folder_id'
+                    $query_folder_share = "SELECT * FROM folders LEFT JOIN shared_to ON folders.id = shared_to.file_id WHERE folders.share_mode = 1 AND folders.trash = 0 AND shared_to.email = '$user_email' AND shared_to.is_folder = 1;";
                     $query = "SELECT * FROM my_drive WHERE share_mode = 2 AND trash = 0 AND folder_id = '$folder_id' ORDER BY id DESC";
+                    $query_share = "SELECT * FROM my_drive LEFT JOIN shared_to ON my_drive.id = shared_to.file_id WHERE my_drive.share_mode = 1 AND my_drive.trash = 0 AND shared_to.email = '$user_email' AND shared_to.is_folder = 0;";
                 } else {
-                    $query_folder = "SELECT * FROM folders WHERE share_mode = 2 AND trash = 0 AND user_id = '$user_id' ORDER BY id DESC"; // AND parent = '$folder_id'
-                    $query = "SELECT * FROM my_drive WHERE share_mode = 2 AND trash = 0 AND folder_id = '$folder_id' AND user_id = '$user_id' ORDER BY id DESC";
+                    $query_folder = "SELECT * FROM folders WHERE share_mode = 2 AND trash = 0 AND user_id = -1 ORDER BY id DESC"; // AND parent = '$folder_id'
+                    $query = "SELECT * FROM my_drive WHERE share_mode = 2 AND trash = 0 AND folder_id = '$folder_id' AND user_id = -1 ORDER BY id DESC";
                 }
                 break;
 
@@ -108,15 +111,45 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
             $rows_folders = query($query_folder);
         }
 
+        if (!empty($query_folder_share)) {
+            $rows_folders_share = query($query_folder_share);
+            if (!$rows_folders_share) {
+                $rows_folders_share = [];
+            }
+        }
+
         if (empty($rows_folders)) {
             $rows_folders = [];
         }
 
-        $rows = query($query);
+        if (empty($query_folder_share)) {
+            $rows_folders_share = [];
+        }
 
+        $rows_folders = array_merge($rows_folders, $rows_folders_share);
+
+        $rows = query($query);
+        if (!empty($query_share)) {
+            $rows_share = query($query_share);
+            if (!$rows_share) {
+                $rows_share = [];
+            }
+        }
+
+        if (empty($query_share)) {
+            $rows_share = [];
+        }
+
+        
         if ($rows) {
+            $rows = array_merge($rows, $rows_share);
             foreach ($rows as $key => $row) {
                 $rows[$key]['icon'] = $icons[$row['file_type']] ?? '<i class="fa-regular fa-circle-question"></i>';
+
+                // get shared_to data
+                $query_shared_to = "SELECT * FROM shared_to WHERE file_id = '$row[id]' AND is_folder = 0 AND disabled = 0";
+                $emails_shared_to = query($query_shared_to);
+                $rows[$key]['email_shared_to'] = empty($emails_shared_to) ? "[]" : json_encode($emails_shared_to);
             }
             $info['rows'] = $rows;
             $info["success"] = true;
@@ -125,6 +158,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
         if ($rows_folders) {
             foreach ($rows_folders as $key => $row_folder) {
                 $rows_folders[$key]['icon'] = '<i class="fa-regular fa-folder"></i>';
+
+                // get shared_to data
+                $query_shared_to = "SELECT * FROM shared_to WHERE file_id = '$row_folder[id]' AND is_folder = 1 AND disabled = 0";
+                $emails_shared_to = query($query_shared_to);
+                $rows_folders[$key]['email_shared_to'] = empty($emails_shared_to) ? "[]" : json_encode($emails_shared_to);
             }
             $info['rows_folders'] = $rows_folders;
             $info["success"] = true;
@@ -237,7 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
                 $query = "DELETE FROM folders WHERE id = '$id' AND user_id = '$user_id' LIMIT 1";
                 $actually_deleted = true;
             } else {
-                $query = "UPDATE folders SET trash = 1 WHERE id = '$id' AND user_id = '$user_id' LIMIT 1";
+                $query = "UPDATE folders SET trash = 1 WHERE id = '$id' LIMIT 1";
             }
 
             if ($actually_deleted) {
@@ -334,6 +372,30 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
 
                 case 1:
                     //  shared to specific users
+                    $user_email = $_SESSION['MY_DRIVE_USER']['email'] ?? 0;
+
+                    // get shared_to data
+                    if ($type === "FOLDER") {
+                        $query_shared_to = "SELECT * FROM shared_to WHERE file_id = '$row[id]' AND is_folder = 1 AND disabled = 0";
+                    } else {
+                        $query_shared_to = "SELECT * FROM shared_to WHERE file_id = '$row[id]' AND is_folder = 0 AND disabled = 0";
+                    }
+                    $emails_shared_to = query($query_shared_to);
+                    if ($emails_shared_to) {
+                        if ($user_id != $row['user_id']) {
+                            $email_list = array_column($emails_shared_to, 'email');
+                            if (!in_array($user_email, $email_list)) {
+                                $info['row'] = false;
+                                $info["success"] = false;
+                            }
+                        }
+                    } else {
+                        // only allow owner
+                        if ($user_id == 0 || $row['user_id'] !== $user_id) {
+                            $info['row'] = false;
+                            $info["success"] = false;
+                        }
+                    }
                     break;
 
                 case 2:
@@ -387,6 +449,33 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
 
             case 1:
                 //  shared to specific users
+                $user_email = $_SESSION['MY_DRIVE_USER']['email'] ?? 0;
+                $query_shared_to = "SELECT * FROM shared_to WHERE file_id = '$current_folder_id' AND is_folder = 1 AND disabled = 0";
+                $emails_shared_to = query($query_shared_to);
+
+                if ($emails_shared_to) {
+                    if ($current_folder['user_id'] !== $user_id) {
+                        $email_list = array_column($emails_shared_to, 'email');
+                        if (!in_array($user_email, $email_list)) {
+                            $current_folder['id'] = -1;
+                            if ($parent_folder) {
+                                if ($parent_folder['share_mode'] != 0 || $parent_folder['id'] ==  $to_access) {
+                                    $current_folder['id'] = query_row($query_current_folder)['id'];
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ($user_id == 0 || $current_folder['user_id'] !== $user_id) {
+                        $current_folder['id'] = -1;
+                        if ($parent_folder) {
+                            if ($parent_folder['share_mode'] != 0 || $parent_folder['id'] ==  $to_access) {
+                                $current_folder['id'] = query_row($query_current_folder)['id'];
+                            }
+                        }
+                        // $info["success"] = false;
+                    }
+                }
                 break;
 
             case 2:
@@ -490,12 +579,15 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
         $share_mode = addslashes($_POST['share_mode'] ?? 0);
         $folder_id = addslashes($_POST['folder_id'] ?? 0);
         $file_type = addslashes($_POST['file_type'] ?? '');
-        $emails = addslashes($_POST['emails'] ?? '[]');
+        $emails = $_POST['emails'] ?? '[]';
+        $is_folder = ($file_type === 'FOLDER') ? 1 : 0;
 
         $emails = json_decode($emails, true);
 
         // disable all email access records
-        // $query_email = "UPDATE shared_to SET disabled = 1 WHERE user_id = '$user_id' AND id = '$id' LIMIT 1";
+        $query_shared_to = "UPDATE shared_to SET disabled = 1 WHERE file_id = '$id' AND is_folder = '$is_folder'";
+        query($query_shared_to);
+
 
         if ($file_type === 'FOLDER') {
             $query = "UPDATE folders SET share_mode = '$share_mode' WHERE user_id = '$user_id' AND id = '$id' LIMIT 1";
@@ -504,6 +596,23 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data_type'])) { // if
         }
 
         query($query);
+
+        // add new access
+        foreach ($emails as $email) {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+            $query_mail = "SELECT * FROM shared_to WHERE email = '$email' AND file_id = '$id' AND is_folder = '$is_folder' LIMIT 1";
+            $row = query_row($query_mail);
+
+            if ($row) {
+                $query_mail = "UPDATE shared_to SET disabled = 0 WHERE id = '" . $row['id'] . "' LIMIT 1";
+                $row = query_row($query_mail);
+            } else {
+                $query_mail = "INSERT INTO shared_to (file_id, is_folder, email, disabled) VALUES ('$id', '$is_folder', '$email', 0)";
+                $row = query_row($query_mail);
+            }
+        }
 
         $info['success'] = true;
     }

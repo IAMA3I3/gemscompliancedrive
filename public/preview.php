@@ -12,6 +12,14 @@ include './components/header.php';
     </div>
 </div>
 
+<!-- info alert -->
+<div class=" alert absolute z-10 w-full top-2 flex justify-center" id="info-alert">
+    <div class=" bg-yellow-500/50 text-yellow-900 border-2 border-yellow-900 shadow-xl py-2 px-5 rounded-full">
+        <i class="fa-solid fa-info"></i>
+        <span id="info-text">...</span>
+    </div>
+</div>
+
 <!-- main -->
 <div class=" flex-1 p-4">
     <!-- card -->
@@ -64,7 +72,7 @@ include './components/header.php';
             <!--  -->
             <div class=" pl-4 flex items-center justify-between mb-2">
                 <div class=" flex items-center gap-4">
-                    <div class=" text-2xl mb-2 hover:text-blue-600 cursor-pointer active:text-blue-800" onclick="changeFolder(0)">My Drive</div>
+                <a class=" text-2xl mb-2 hover:text-blue-600 cursor-pointer active:text-blue-800" href="./index.php">My Drive</a>
                     <!--  -->
                     <div class="pop relative" id="extended-folders">
                         <div class="  cursor-pointer hover:text-blue-600 active:text-blue-800">

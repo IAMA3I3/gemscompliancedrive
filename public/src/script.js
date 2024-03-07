@@ -251,6 +251,7 @@ const refresh = (ref, MODE) => {
                             let imgVid = obj.rows[i].file_path
 
                             // console.log(obj.rows[i].folder_id)
+                            // console.log(obj.rows[i].file_path)
 
                             let cardImg
                             if (isImage.includes(imgVid.split('.').pop().toLowerCase())) {
@@ -435,6 +436,14 @@ const showAlert = () => {
 copyBtn.onclick = () => {
     copyLink()
     showAlert()
+}
+
+const infoAlert = document.querySelector('#info-alert')
+const infoText = document.querySelector('#info-text')
+const showInfoAlert = (info) => {
+    infoText.innerHTML = info
+    infoAlert.classList.add('show')
+    setTimeout(() => infoAlert.classList.remove('show'), 5000)
 }
 
 
@@ -726,7 +735,8 @@ let uploading = false
 const uploadFiles = (files) => {
 
     if (uploading) {
-        alert('File upload in progress')
+        // alert('File upload in progress')
+        showInfoAlert('File upload in progress')
         return
     }
 
@@ -777,6 +787,7 @@ const uploadFiles = (files) => {
                 if (obj.success) {
                     console.log('Upload complete')
                     refreshAll()
+                    location.reload()
                 } else {
                     console.log('Upload error')
                 }

@@ -6,6 +6,14 @@ const showSaveAlert = () => {
     setTimeout(() => saveAlert.classList.remove('show'), 5000)
 }
 
+// const infoAlert = document.querySelector('#info-alert')
+// const infoText = document.querySelector('#info-text')
+// const showInfoAlert = (info) => {
+//     infoText.innerHTML = info
+//     infoAlert.classList.add('show')
+//     setTimeout(() => infoAlert.classList.remove('show'), 5000)
+// }
+
 // share pop up
 const shareBtn = document.querySelector('#menu-share')
 const shareContainer = document.querySelector('#share-modal-container')
@@ -17,6 +25,8 @@ const copyShareLinkBtn = document.querySelector('#copy-share-link-btn')
 const radios = document.querySelectorAll('.radio')
 
 shareBtn.onclick = () => {
+    // console.log(RIGHT_CLICKED.itemRow.email_shared_to)
+    share.refresh(RIGHT_CLICKED.itemRow.email_shared_to)
     shareAction.showShareContainer()
 }
 shareContainer.onclick = () => {
@@ -162,7 +172,8 @@ const action = {
     send: (obj) => {
 
         if (action.uploading) {
-            alert("Folder upload in progress")
+            // alert("Folder upload in progress")
+            showInfoAlert('Folder upload in progress')
             return
         }
 
@@ -184,6 +195,8 @@ const action = {
             if (xhr.readyState == 4) {
 
                 if (xhr.status == 200) {
+
+                    // console.log(xhr.responseText)
 
                     let obj = JSON.parse(xhr.responseText)
                     action.handleResult(xhr.responseText, obj)
@@ -266,5 +279,11 @@ const share = {
     remove: (e) => {
         e.currentTarget.parentNode.remove()
     },
-    refresh: (obj) => { }
+    refresh: (obj) => {
+        document.querySelector('#email-share-list').innerHTML = ""
+        let rows = JSON.parse(obj)
+        for (let i = 0; i < rows.length; i++) {
+            share.add(rows[i].email)
+        }
+    }
 }

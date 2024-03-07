@@ -6,6 +6,15 @@ var FOLDER_ID = 0
 var RIGHT_CLICKED = {}
 
 
+const infoAlert = document.querySelector('#info-alert')
+const infoText = document.querySelector('#info-text')
+const showInfoAlert = (info) => {
+    infoText.innerHTML = info
+    infoAlert.classList.add('show')
+    setTimeout(() => infoAlert.classList.remove('show'), 5000)
+}
+
+
 // pop up images/videos
 var images = document.querySelectorAll('#img')
 var pop = document.querySelector('#popup')
@@ -279,6 +288,8 @@ const refresh = (ref, MODE) => {
 
                             // console.log(obj.rows[i].folder_id)
 
+                            // console.log(obj.rows[i].file_path)
+
                             let cardImg
                             if (isImage.includes(imgVid.split('.').pop().toLowerCase())) {
                                 cardImg = document.createElement('img')
@@ -307,21 +318,21 @@ const refresh = (ref, MODE) => {
                             container.oncontextmenu = (e) => {
                                 rightClick(e, isFavourite, MODE, obj.rows[i], 'FILE')
                                 // console.log(obj.rows[i].id)
-                            }
-
-                            // console.log(MODE == "MYDRIVE")
+                            } 
 
 
                             if (MODE == "MYDRIVE" && obj.rows[i].folder_id == FOLDER_ID) {
                                 displayImages.push(obj.rows[i].file_path)
-                            }
-                            if (MODE != "MYDRIVE") {
+                            } else if (MODE != "MYDRIVE") {
                                 displayImages.push(obj.rows[i].file_path)
                             }
+
+                            // console.log(displayImages)
 
                             cardImg.onclick = () => {
 
                                 position = i
+                                console.log(displayImages[position])
                                 assignSrc(displayImages[position])
                                 // assignSrc(obj.rows[position].file_path)
                             }
@@ -641,6 +652,7 @@ const menu = document.querySelector('#menu') //menu for right click
 const rightClick = (e, isFavourite, mode, itemRow, type) => {
     e.preventDefault()
 
+
     RIGHT_CLICKED = {
         'itemRow': itemRow,
         'name': type === 'FOLDER' ? itemRow.name : itemRow.file_name,
@@ -655,6 +667,21 @@ const rightClick = (e, isFavourite, mode, itemRow, type) => {
     let delBtnText = document.querySelector('#menu-delete-text')
     let deleteBtn = document.querySelector('#menu-delete')
     let previewBtn = document.querySelector('#menu-preview')
+    let shareBtn = document.querySelector('#menu-share')
+    let favBtn = document.querySelector('#menu-fav')
+
+    if (!LOGGED_IN) {
+        previewBtn.style.opacity = '0.7'
+        previewBtn.onclick = () => {
+            return
+        }
+        deleteBtn.style.opacity = '0.7'
+        shareBtn.style.opacity = '0.7'
+        shareBtn.onclick = () => {
+            return
+        }
+        favBtn.style.opacity = '0.7'
+    }
 
     delBtnText.innerHTML = "Delete"
 
@@ -670,8 +697,6 @@ const rightClick = (e, isFavourite, mode, itemRow, type) => {
         restoreBtn.style.display = 'block'
         delBtnText.innerHTML = "Delete Permanently"
     }
-
-    let favBtn = document.querySelector('#menu-fav')
 
     downloadBtn.setAttribute('href', '#')
 
@@ -705,6 +730,9 @@ const rightClick = (e, isFavourite, mode, itemRow, type) => {
     }
 
     favBtn.onclick = () => {
+        if (!LOGGED_IN) {
+            return
+        }
         addToFavourite(type, itemRow.id)
     }
 
@@ -733,6 +761,9 @@ const rightClick = (e, isFavourite, mode, itemRow, type) => {
     }
 
     deleteBtn.onclick = () => {
+        if (!LOGGED_IN) {
+            return
+        }
         deleteRow(type, itemRow.id)
     }
     restoreBtn.onclick = () => {
@@ -753,7 +784,8 @@ let uploading = false
 const uploadFiles = (files) => {
 
     if (uploading) {
-        alert('File upload in progress')
+        // alert('File upload in progress')
+        showInfoAlert('File upload in progress')
         return
     }
 
@@ -804,6 +836,7 @@ const uploadFiles = (files) => {
                 if (obj.success) {
                     console.log('Upload complete')
                     refreshAll()
+                    location.reload()
                 } else {
                     console.log('Upload error')
                 }

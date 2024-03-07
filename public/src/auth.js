@@ -1,3 +1,19 @@
+const infoAlert = document.querySelector('#info-alert')
+const infoText = document.querySelector('#info-text')
+const showInfoAlert = (info) => {
+    infoText.innerHTML = info
+    infoAlert.classList.add('show')
+    setTimeout(() => infoAlert.classList.remove('show'), 5000)
+}
+
+const successAlert = document.querySelector('#success-alert')
+const successText = document.querySelector('#success-text')
+const showSuccessAlert = (info) => {
+    successText.innerHTML = info
+    successAlert.classList.add('show')
+    setTimeout(() => successAlert.classList.remove('show'), 5000)
+}
+
 const signup = {
 
     uploading: false,
@@ -7,7 +23,8 @@ const signup = {
         e.preventDefault()
 
         if (signup.uploading) {
-            alert('Uploading, please wait...')
+            // alert('Uploading, please wait...')
+            showInfoAlert('Please wait ...')
             return
         }
 
@@ -43,7 +60,8 @@ const signup = {
 
                     if(obj.success && obj.data_type == "user_signup") {
 
-                        alert('Account created, Please login to continue')
+                        // alert('Account created, Please login to continue')
+                        showSuccessAlert('Account created, Please login to continue')
                         window.location.href = 'login.php'
                     } else {
 
@@ -80,7 +98,8 @@ const login = {
         e.preventDefault()
 
         if (login.uploading) {
-            alert('Uploading, please wait...')
+            // alert('Uploading, please wait...')
+            showInfoAlert('Please wait ...')
             return
         }
 
@@ -116,7 +135,8 @@ const login = {
 
                     if(obj.success && obj.data_type == "user_login") {
 
-                        alert('Login Successful')
+                        // alert('Login Successful')
+                        showInfoAlert('Loging you in ...')
                         window.location.href = 'index.php'
                     } else {
 

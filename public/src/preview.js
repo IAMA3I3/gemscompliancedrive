@@ -84,7 +84,7 @@ const action = {
     send: (obj) => {
 
         if (action.uploading) {
-            alert("Folder upload in progress")
+            // alert("Folder upload in progress")
             return
         }
 
@@ -129,6 +129,18 @@ const action = {
             USERNAME = obj.username
             document.querySelector('#username').innerHTML = obj.username
         }
+        // check if user is logged in
+        LOGGED_IN = obj.LOGGED_IN
+
+        if (!LOGGED_IN) {
+            document.querySelector('#logout-btn').innerHTML = `
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <span>Login</span>
+            `
+            document.querySelector('#logout-btn').onclick = () => {
+                window.location.href = 'login.php'
+            }
+        }
         if (obj.success) {
 
             // alert(result)
@@ -140,90 +152,6 @@ const action = {
 
             // console.log(xhr.responseText)
 
-            // check if user is logged in
-
-            // update folder tabs
-            // let folderTabs = document.querySelector('#folder-tabs')
-            // let extendedFolder = document.querySelector('#extended-folders')
-            // let dropFolder = document.querySelector('#drop-down-folder-tabs')
-            // folderTabs.innerHTML = ""
-            // dropFolder.innerHTML = ""
-            // dropFolder.classList.remove('show')
-            // extendedFolder.classList.remove('show')
-            // for (let i = obj.folder_tabs.length - 1; i >= 0; i--) {
-            //     // console.log(obj.folder_tabs[i].name)
-            //     if (i < 3) {
-            //         folderTabs.innerHTML += `
-            //                 <div onclick="changeFolder(${obj.folder_tabs[i].id})" class="${(i == 0) ? 'bg-blue-500' : 'bg-blue-400'} text-sm font-semibold rounded-full py-1 px-4 text-white cursor-pointer hover:bg-blue-500 active:scale-95 max-w-32 overflow-hidden flex items-center gap-2">
-            //                     <i class="fa-regular fa-folder-open"></i>
-            //                     <span class=" truncate">${obj.folder_tabs[i].name}</span>
-            //                 </div>
-            //             `
-            //     } else if (i >= 3) {
-            //         // console.log(obj.folder_tabs[i].name)
-            //         extendedFolder.classList.add('show')
-            //         dropFolder.innerHTML += `
-            //                 <div onclick="changeFolder(${obj.folder_tabs[i].id})" class=" py-1 px-4 hover:bg-blue-500 hover:text-white cursor-pointer flex items-center gap-2">
-            //                     <i class="fa-regular fa-folder-open"></i>
-            //                     <span class=" truncate">${obj.folder_tabs[i].name}</span>
-            //                 </div>
-            //             `
-            //     }
-            // }
-
-            // if (extendedFolder.classList.contains('show')) {
-            //     extendedFolder.onclick = (e) => {
-            //         e.stopPropagation()
-            //         dropFolder.classList.toggle('show')
-            //     }
-            // }
-
-            // recreate display 
-            // folders
-            // if (obj.rows_folders) {
-            //     for (let i = 0; i < obj.rows_folders.length; i++) {
-
-            //         let folderContainer = document.createElement('div')
-            //         folderContainer.className = " w-[90%] rounded-xl shadow-md border-4 border-slate-300 bg-slate-300"
-            //         folderContainer.setAttribute("id", "main-body-item")
-
-            //         let isFavourite = false
-
-            //         let folderCardTitle = document.createElement('div')
-            //         folderCardTitle.className = " py-2 px-4 w-full truncate overflow-hidden z-10"
-            //         folderCardTitle.innerHTML = `
-            //                     ${obj.rows_folders[i].icon}
-            //                     <span class="">${obj.rows_folders[i].name}</span>
-            //                 `
-
-            //         let folderInner = document.createElement('div')
-            //         folderInner.className = " h-full flex items-center justify-center text-6xl md:text-9xl"
-            //         folderInner.innerHTML = `<i class="fa-solid fa-folder"></i>`
-
-            //         let folderCardBody = document.createElement('div')
-            //         folderCardBody.className = " h-40 overflow-hidden rounded-md"
-            //         folderCardBody.appendChild(folderInner)
-
-            //         folderContainer.appendChild(folderCardTitle)
-            //         folderContainer.appendChild(folderCardBody)
-
-            //         folderContainer.oncontextmenu = (e) => {
-            //             rightClick(e, isFavourite, MODE, obj.rows_folders[i], 'FOLDER')
-            //             // console.log(obj.rows[i].id)
-            //         }
-
-            //         folderContainer.ondblclick = (e) => {
-            //             e.preventDefault()
-            //             // console.log(obj.rows_folders[i].id)
-            //             changeFolder(obj.rows_folders[i].id)
-            //         }
-
-            //         if (myDriveDisplay) {
-
-            //             myDriveDisplay.appendChild(folderContainer)
-            //         }
-            //     }
-            // }
 
             // files
             if (obj.row) {
