@@ -114,14 +114,14 @@ include './components/header.php';
         <i class=" w-8 fa-solid fa-cloud-arrow-down"></i>
         <span>Download</span>
     </a>
-    <div class=" hide-from-trash">
+    <!-- <div class=" hide-from-trash">
         <i class=" w-8 fa-regular fa-pen-to-square"></i>
         <span>Edit</span>
-    </div>
-    <div class=" hide-from-trash">
+    </div> -->
+    <!-- <div class=" hide-from-trash">
         <i class=" w-8 fa-regular fa-folder-open"></i>
         <span>Move</span>
-    </div>
+    </div> -->
     <div class="" id="menu-delete">
         <i class=" w-8 fa-regular fa-trash-can"></i>
         <span id="menu-delete-text">Delete</span>
